@@ -26,8 +26,27 @@
 (def DEMO
   {:name "vnok/DEMO"
    :orig-id 264})
+
+(s/def :vnok.DEMO/date c/non-empty-string?)
+(s/def :vnok.DEMO/agr-datetime c/non-empty-string?)
+(s/def :vnok.DEMO/birthday c/non-empty-string?)
+(s/def :vnok.DEMO/age (s/get-spec ::c/age))
+(s/def :vnok.DEMO/gender (s/get-spec ::c/gender))
+(s/def :vnok.DEMO/race (s/get-spec ::c/race))
+(s/def :vnok.DEMO/other string?)
+
 (defmethod c/get-exp-spec "vnok/DEMO" [_]
-  (s/get-spec ::vnok-common))
+  (s/merge
+    (s/get-spec ::vnok-common)
+    (s/keys :req-un
+            [:vnok.DEMO/date
+             :vnok.DEMO/agr-datetime
+             :vnok.DEMO/birthday
+             :vnok.DEMO/age
+             :vnok.DEMO/gender
+             :vnok.DEMO/race
+             :vnok.DEMO/other])))
+
 (defmethod c/parse-exp-from-json 264 [_]
   {:type "vnok/DEMO"})
 

@@ -8,17 +8,13 @@
             [clojure.data.json :as js]
             [clojure.java.io :as io]))
 
-;(s/exercise ::c/exp-common)
-;(s/exercise ::v/vnok-common)
-;
-;(c/parse-exp-from-json {})
-
 ;(def t (js/read-str (slurp (io/resource "vnok/DEMO.json")) :key-fn keyword))
 ;(c/parse-exp-from-json t)
 ;(core/json->exp t)
 ;(s/get-spec ::core/exp)
-;(gen/sample (s/gen ::core/exp))
-;
+(gen/sample (s/gen ::core/exp))
+(s/describe ::c/age)
+
 ;(s/exercise (c/get-exp-spec {:type "vnok/DEMO"}))
-;
-;(s/exercise (c/get-exp-spec {:type "vnok/DEMO"}))
+
+;(s/exercise (c/get-exp-spec {:type "vnok/DEMO"}))\

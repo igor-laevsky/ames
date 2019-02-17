@@ -8,9 +8,6 @@
 
 ;; Common interface for each exp
 (defmulti get-exp-spec :type)
-(defmethod get-exp-spec :default [_]
-  (throw (ex-info "Unable to find spec for a given exp." {})))
-  ;(s/spec string?))
 
 (defmulti parse-exp-from-json #(get-in % [:d :FormData :SectionList 0 :ID]))
 (defmethod parse-exp-from-json :default [j]
@@ -18,7 +15,12 @@
            (str "Unable to find parser for a given exp.")
            {:orig-id (get-in j [:d :FormData :SectionList 0 :ID])})))
 
+;; Helper routines for specs reused across different experiments
+(def non-empty-string? (s/and string? (complement string/blank?)))
 
+(s/def ::gender #{"Женский" "Мужской"})
+(s/def ::age (s/int-in 0 200))
+(s/def ::race #{"Европеоидная" "Монголоидная" "Негроидная" "Другое"})
 
 ;; Common spec for the single experiment
 ;; {
@@ -30,16 +32,14 @@
 ;;   :finished boolean
 ;;   :verified boolean
 ;; }
-(def ^:private non-empty-string? (s/and string? (complement string/blank?)))
-
 (s/def ::type non-empty-string?)
 (s/def ::visit non-empty-string?)
 (s/def ::group string?)
 
 (s/def ::name non-empty-string?)
 (s/def ::rand-num non-empty-string?)
-(s/def ::sex #{"M" "F"})
 (s/def ::birthday non-empty-string?)
+(s/def ::sex #{"M" "F"})
 (s/def ::patient (s/keys :req-un [::name]
                          :opt-un [::rand-num ::sex ::birthday]))
 (s/def ::location non-empty-string?)
