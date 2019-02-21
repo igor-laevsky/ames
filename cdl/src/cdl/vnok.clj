@@ -28,13 +28,12 @@
    :orig-id 264})
 
 (s/def :vnok.DEMO/date c/non-empty-string?)
-(s/def :vnok.DEMO/agr-datetime c/non-empty-string?)
-(s/def :vnok.DEMO/birthday c/non-empty-string?)
+(s/def :vnok.DEMO/agr-datetime ::c/date-time-str)
+;(s/def :vnok.DEMO/birthday c/non-empty-string?)
+(s/def :vnok.DEMO/birthday ::c/date-time-str)
 (s/def :vnok.DEMO/age c/age?)
 (s/def :vnok.DEMO/gender c/gender?)
-
-(s/def :vnok.DEMO/race c/race?
-  )
+(s/def :vnok.DEMO/race c/race?)
 (s/def :vnok.DEMO/other string?)
 
 (defmethod c/get-exp-spec "vnok/DEMO" [_]

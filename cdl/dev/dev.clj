@@ -6,15 +6,13 @@
             [clojure.spec.alpha :as s]
             [clojure.test.check.generators :as gen]
             [clojure.data.json :as js]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [clj-time.core :as t]
+            [clj-time.format :as tf]))
 
 ;(def t (js/read-str (slurp (io/resource "vnok/DEMO.json")) :key-fn keyword))
 ;(c/parse-exp-from-json t)
 ;(core/json->exp t)
-;(s/get-spec ::core/exp)
-(gen/sample (s/gen ::core/exp))
-(s/describe ::c/age)
 
+;(gen/sample (s/gen ::core/exp))
 ;(s/exercise (c/get-exp-spec {:type "vnok/DEMO"}))
-
-;(s/exercise (c/get-exp-spec {:type "vnok/DEMO"}))\
