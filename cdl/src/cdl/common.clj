@@ -1,7 +1,9 @@
 (ns cdl.common
   (:require [clojure.spec.alpha :as s]
             [clojure.spec.gen.alpha :as g]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [clj-time.core :as t]
+            [clj-time.format :as tf]))
 
 ;;; This namespace contains private interface definitions and helper functions
 ;;; for the single trial.
@@ -18,9 +20,10 @@
 ;; Helper routines for specs reused across different experiments
 (def non-empty-string? (s/and string? (complement string/blank?)))
 
-(s/def ::gender #{"Женский" "Мужской"})
-(s/def ::age (s/int-in 0 200))
-(s/def ::race #{"Европеоидная" "Монголоидная" "Негроидная" "Другое"})
+(def gender? #{"Женский" "Мужской"})
+(def age? (s/int-in 0 200))
+(def race? #{"Европеоидная" "Монголоидная" "Негроидная" "Другое"})
+
 
 ;; Common spec for the single experiment
 ;; {
