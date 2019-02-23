@@ -26,11 +26,19 @@
 ;; Helper routines for specs reused across different experiments
 ;;
 
-(def non-empty-string? (s/and string? (complement string/blank?)))
+(s/def ::non-empty-string (s/and string? (complement string/blank?)))
 
-(def gender? #{"Женский" "Мужской"})
-(def age? (s/int-in 0 200))
-(def race? #{"Европеоидная" "Монголоидная" "Негроидная" "Другое"})
+(def gender-decode {"M" "Мужской"
+                    "F" "Женский"})
+(s/def ::gender (set (vals gender-decode)))
+
+(def race-decode {"1" "Европеоидная"
+                  "2" "Монголоидная"
+                  "3" "Негроидная"
+                  "4" "Другое"})
+(s/def ::race (set (vals race-decode)))
+
+(s/def ::age (s/int-in 0 200))
 
 (def date-time-format
   (tf/formatter (t/time-zone-for-id "UTC")
@@ -70,17 +78,16 @@
 ;; }
 ;;
 
-(s/def ::type non-empty-string?)
-(s/def ::visit non-empty-string?)
+(s/def ::type ::non-empty-string)
+(s/def ::visit ::non-empty-string)
 (s/def ::group string?)
 
-(s/def ::name non-empty-string?)
-(s/def ::rand-num non-empty-string?)
+(s/def ::name ::non-empty-string)
+(s/def ::rand-num string?)
 (s/def ::birthday ::date-time-str)
-(s/def ::sex #{"M" "F"})
 (s/def ::patient (s/keys :req-un [::name]
-                         :opt-un [::rand-num ::sex ::birthday]))
-(s/def ::location non-empty-string?)
+                         :opt-un [::rand-num ::gender ::birthday]))
+(s/def ::location ::non-empty-string)
 (s/def ::finished boolean?)
 (s/def ::verified boolean?)
 
