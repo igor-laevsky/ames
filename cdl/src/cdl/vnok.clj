@@ -1,7 +1,8 @@
 (ns cdl.vnok
   (:require [cdl.common :as c]
             [clojure.spec.alpha :as s]
-            [json-path :as jp]))
+            [json-path :as jp]
+            [clojure.test :as test]))
 
 (def exp-types (->>
                  ["DEMO" "MH" "PE.v1" "PE" "UV" "VS" "AE"]
