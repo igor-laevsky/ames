@@ -24,6 +24,20 @@
   (s/merge ::c/exp-common
            (s/keys :req-un [::type ::visit ::location])))
 
+; Extracts data common to all experiments
+(defn parser-common [inp]
+  {:visit    (str "vnok/" (jp/at-path "$.d.StudyEventOID" inp))
+   :location (subs (jp/at-path "$.d.LocationOID" inp) 1)
+   :group    (str (jp/at-path "$.d.StudyEventRepeatKey" inp))
+   :finished (boolean (#{6 8} (jp/at-path "$.d.State" inp)))
+   :verified (boolean (#{7 8} (jp/at-path "$.d.State" inp)))
+
+   :patient  {:name     (jp/at-path "$.d.SubjectKey" inp)
+              :birthday (jp/at-path "$.d.SubjectBrthDate" inp)
+              :gender   (c/gender-decode (jp/at-path "$.d.SubjectSex" inp))
+              :rand-num ""}
+   })
+
 ; Screening visit demographic data (DEMO)
 (s/def :vnok.DEMO/date ::c/date-time-str)
 (s/def :vnok.DEMO/agr-datetime ::c/date-time-str)
@@ -46,59 +60,50 @@
              :vnok.DEMO/other])))
 
 (defmethod c/parse-exp-from-json 264 [inp]
-  {:type "vnok/DEMO"
-   :date
-         (jp/at-path
-           "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
-           inp)
-
-   :agr-datetime
-         (str
+  (merge
+    (parser-common inp)
+    {:type "vnok/DEMO"
+     :date
            (jp/at-path
-             "$.
-             d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
+             "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
              inp)
-           " "
+
+     :agr-datetime
+           (str
+             (jp/at-path
+               "$.
+               d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
+               inp)
+             " "
+             (jp/at-path
+               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
+               inp))
+
+     :birthday
            (jp/at-path
-             "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
-             inp))
+             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value"
+             inp)
 
-   :birthday
-         (jp/at-path
-           "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value"
-           inp)
+     :age
+           (Integer/parseInt
+             (jp/at-path
+               "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[1].ItemList[1].Value"
+               inp))
 
-   :age
-         (Integer/parseInt
+     :gender
+           (c/gender-decode
+             (jp/at-path
+               "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[2].ItemList[1].Value"
+               inp))
+
+     :race
+           (c/race-decode
+             (jp/at-path
+               "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[4].ItemList[1].Value"
+               inp))
+
+     :other
            (jp/at-path
-             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[1].ItemList[1].Value"
-             inp))
-
-   :gender
-         (c/gender-decode
-           (jp/at-path
-             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[2].ItemList[1].Value"
-             inp))
-
-   :race
-         (c/race-decode
-           (jp/at-path
-             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[4].ItemList[1].Value"
-             inp))
-
-   :other
-         (jp/at-path
-           "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[5].ItemList[1].Value"
-           inp)
-
-   :visit (str "vnok/" (jp/at-path "$.d.StudyEventOID" inp))
-   :location (subs (jp/at-path "$.d.LocationOID" inp) 1)
-   :group (str (jp/at-path "$.d.StudyEventRepeatKey" inp))
-   :finished (boolean (#{6 8} (jp/at-path "$.d.State" inp)))
-   :verified (boolean (#{7 8} (jp/at-path "$.d.State" inp)))
-
-   :patient {:name (jp/at-path "$.d.SubjectKey" inp)
-             :birthday (jp/at-path "$.d.SubjectBrthDate" inp)
-             :gender (c/gender-decode (jp/at-path "$.d.SubjectSex" inp))
-             :rand-num ""}
-   })
+             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[5].ItemList[1].Value"
+             inp)
+     }))
