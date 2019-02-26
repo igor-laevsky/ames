@@ -2,7 +2,10 @@
   (:require [clojure.test :refer :all]
             [cdl.core :as c]
             [clojure.data.json :as js]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [orchestra.spec.test :as st]))
+
+(st/instrument)
 
 (defn read-exp-from-file [fname]
   (-> fname

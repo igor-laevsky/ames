@@ -91,7 +91,6 @@
            "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[5].ItemList[1].Value"
            inp)
 
-
    :visit (str "vnok/" (jp/at-path "$.d.StudyEventOID" inp))
    :location (subs (jp/at-path "$.d.LocationOID" inp) 1)
    :group (str (jp/at-path "$.d.StudyEventRepeatKey" inp))

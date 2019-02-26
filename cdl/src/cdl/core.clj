@@ -11,3 +11,7 @@
 ; Takes a json object and returns experiment or raises an exception.
 (defn json->exp [json]
   (common/parse-exp-from-json json))
+
+(s/fdef json->exp
+  :args (s/cat :json map?)
+  :ret ::exp)
