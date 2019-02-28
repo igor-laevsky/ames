@@ -14,7 +14,8 @@
 ;; Common interface for each exp
 ;;
 
-(defmulti get-exp-spec :type)
+(defmulti
+  get-exp-spec :type)
 
 (defmulti parse-exp-from-json #(get-in % [:d :FormData :SectionList 0 :ID]))
 (defmethod parse-exp-from-json :default [j]
@@ -63,8 +64,23 @@
      (fn [ms] (->> (DateTime. ms DateTimeZone/UTC)
                    (tf/unparse date-time-format)))
      (gen/resize 200 date-range-gen)))
+(def empty-date-str-gen
+  #(gen/one-of [(date-str-gen) (gen/return "")]))
 
 (s/def ::date-time-str (s/with-gen date-time-str? date-str-gen))
+(s/def ::date-time-str-or-nil
+  (s/with-gen
+    (s/and string? (s/or :date ::date-time-str :empty empty?))
+    empty-date-str-gen))
+
+(def yes-no-decode {"Y" "Да"
+                    "N" "Нет"})
+(s/def ::yes-no (set (vals yes-no-decode)))
+
+(def status-decode {"1" "Разрешилось"
+                    "2" "Продолжается"})
+(s/def ::status (set (vals status-decode)))
+
 
 ;; Common spec for a single experiment
 ;; {

@@ -9,14 +9,16 @@
             [clojure.java.io :as io]
             [clj-time.core :as t]
             [clj-time.format :as tf]
-            [json-path :as jp]
-            [clojure.data.json :as js]))
+            [json-path :as jp]))
 
-(def t (js/read-str (slurp (io/resource "vnok/DEMO.json")) :key-fn keyword))
+(def t (js/read-str (slurp (io/resource "vnok/MD.json")) :key-fn keyword))
 (def tt (c/parse-exp-from-json t))
 (core/json->exp t)
 (s/explain ::core/exp tt)
 (s/valid? ::core/exp tt)
+
+(def t (c/get-exp-spec {:type "vnok/MD"}))
+(gen/sample (s/gen t))
 
 (gen/sample (s/gen ::core/exp))
 ;(s/exercise (c/get-exp-spec {:type "vnok/DEMO"}))

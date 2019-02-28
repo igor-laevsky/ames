@@ -5,7 +5,7 @@
             [clojure.test :as test]))
 
 (def exp-types (->>
-                 ["DEMO" "MH" "PE.v1" "PE" "UV" "VS" "AE"]
+                 ["DEMO" "MH" "MD" "PE.v1" "PE" "UV" "VS" "AE"]
                  (map (partial str "vnok/"))
                  (set)))
 
@@ -35,8 +35,7 @@
    :patient  {:name     (jp/at-path "$.d.SubjectKey" inp)
               :birthday (jp/at-path "$.d.SubjectBrthDate" inp)
               :gender   (c/gender-decode (jp/at-path "$.d.SubjectSex" inp))
-              :rand-num ""}
-   })
+              :rand-num ""}})
 
 ; Screening visit demographic data (DEMO)
 (s/def :vnok.DEMO/date ::c/date-time-str)
@@ -107,3 +106,41 @@
              "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[5].ItemList[1].Value"
              inp)
      }))
+
+; Screening visit medical history (MD)
+(s/def :vnok.MD/has-records ::c/yes-no)
+(s/def :vnok.MD/condition string?)
+(s/def :vnok.MD/start-date ::c/date-time-str-or-nil)
+(s/def :vnok.MD/status ::c/status)
+(s/def :vnok.MD/stop-date ::c/date-time-str-or-nil)
+(s/def :vnok.MD/records
+  (s/coll-of
+    (s/keys :req-un [:vnok.MD/condition :vnok.MD/start-date
+                     :vnok.MD/status :vnok.MD/stop-date])))
+
+(defmethod c/get-exp-spec "vnok/MD" [_]
+  (s/merge
+    ::vnok-common
+    (s/keys :req-un
+            [:vnok.MD/has-records
+             :vnok.MD/records])))
+
+(defmethod c/parse-exp-from-json 205 [inp]
+  (merge
+    (parser-common inp)
+    {:type "vnok/MD"
+     :has-records
+           (c/yes-no-decode
+             (jp/at-path
+               "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
+               inp))
+     :records
+           (mapv
+             #(hash-map
+                :condition (jp/at-path "$.RowList[0].ItemList[1].Value" %)
+                :start-date (jp/at-path "$.RowList[1].ItemList[1].Value" %)
+                :status (c/status-decode (jp/at-path "$.RowList[2].ItemList[1].Value" %))
+                :stop-date (jp/at-path "$.RowList[4].ItemList[1].Value" %))
+             (jp/at-path "$.d.FormData.SectionList[2].ItemGroupList" inp))
+     }
+    ))
