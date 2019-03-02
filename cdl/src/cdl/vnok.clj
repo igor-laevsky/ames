@@ -2,10 +2,11 @@
   (:require [cdl.common :as c]
             [clojure.spec.alpha :as s]
             [json-path :as jp]
-            [clojure.test :as test]))
+            [clojure.test :as test]
+            [clojure.string :as string]))
 
 (def exp-types (->>
-                 ["DEMO" "MH" "MD" "PE.v1" "PE" "UV" "VS" "AE"]
+                 ["DEMO" "MH" "MD" "PE.v1" "PE.v2-v10" "UV" "VS" "AE"]
                  (map (partial str "vnok/"))
                  (set)))
 
@@ -142,5 +143,70 @@
                 :status (c/status-decode (jp/at-path "$.RowList[2].ItemList[1].Value" %))
                 :stop-date (jp/at-path "$.RowList[4].ItemList[1].Value" %))
              (jp/at-path "$.d.FormData.SectionList[2].ItemGroupList" inp))
-     }
-    ))
+     }))
+
+; V2-V10 Physical examination (PE.v2-v10)
+
+(s/def :vnok.PE.v1-v10/date ::c/date-time-str)
+(s/def :vnok.PE.v1-v10/examination-date ::c/date-time-str)
+(s/def :vnok.PE.v1-v10/is-done boolean?)
+(s/def :vnok.PE.v1-v10/not-done-reason string?)
+(s/def :vnok.PE.v1-v10/has-deviations ::c/yes-no)
+
+(s/def :vnok.PE.v1-v10/organ-system ::c/organ-system)
+(s/def :vnok.PE.v1-v10/is-important ::c/yes-no)
+(s/def :vnok.PE.v1-v10/comment string?)
+(s/def :vnok.PE.v1-v10/deviations
+  (s/coll-of
+    (s/keys :req-un [:vnok.PE.v1-v10/organ-system
+                     :vnok.PE.v1-v10/is-important
+                     :vnok.PE.v1-v10/comment])))
+
+(defmethod c/get-exp-spec "vnok/PE.v2-v10" [_]
+  (s/merge
+    ::vnok-common
+    (s/keys :req-un [:vnok.PE.v1-v10/date :vnok.PE.v1-v10/examination-date
+                     :vnok.PE.v1-v10/is-done :vnok.PE.v1-v10/not-done-reason
+                     :vnok.PE.v1-v10/has-deviations
+                     :vnok.PE.v1-v10/deviations])))
+
+(defmethod c/parse-exp-from-json 265 [inp]
+  (merge
+    (parser-common inp)
+    {:type "vnok/PE.v2-v10"
+     :date (jp/at-path
+             "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
+             inp)
+     :examination-date
+           (str
+             (jp/at-path
+               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
+               inp)
+             " "
+             (jp/at-path
+               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
+               inp))
+     :is-done
+           (string/blank?
+             (jp/at-path
+               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[0].Value"
+               inp))
+     :not-done-reason
+           (jp/at-path
+             "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[2].Value"
+             inp)
+     :has-deviations
+           (c/yes-no-decode
+             (jp/at-path
+               "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value"
+               inp))
+     :deviations
+           (mapv
+             #(hash-map
+                :organ-system (c/organ-system-decode
+                                (jp/at-path "$.RowList[0].ItemList[0].Value" %))
+                :is-important (c/yes-no-decode
+                                (jp/at-path "$.RowList[0].ItemList[1].Value" %))
+                :comment (jp/at-path "$.RowList[0].ItemList[2].Value" %))
+             (next (jp/at-path "$.d.FormData.SectionList[3].ItemGroupList" inp)))
+     }))
