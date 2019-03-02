@@ -11,7 +11,7 @@
             [clj-time.format :as tf]
             [json-path :as jp]))
 
-(def t (js/read-str (slurp (io/resource "vnok/PE.v2-v10.json")) :key-fn keyword))
+(def t (js/read-str (slurp (io/resource "vnok/UV.json")) :key-fn keyword))
 (def tt (c/parse-exp-from-json t))
 (core/json->exp t)
 (s/explain ::core/exp tt)

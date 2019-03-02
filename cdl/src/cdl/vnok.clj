@@ -210,3 +210,30 @@
                 :comment (jp/at-path "$.RowList[0].ItemList[2].Value" %))
              (next (jp/at-path "$.d.FormData.SectionList[3].ItemGroupList" inp)))
      }))
+
+; Unplanned visit Reason (UV)
+(s/def :vnok.UV/date ::c/date-time-str)
+(def uv-reason-decode {"1" "НЯ/СНЯ", "2" "Другое"})
+(s/def :vnok.UV/reason (set (vals uv-reason-decode)))
+(s/def :vnok.UV/comment string?)
+
+(defmethod c/get-exp-spec "vnok/UV" [_]
+  (s/merge
+    ::vnok-common
+    (s/keys :req-un [:vnok.UV/date :vnok.UV/reason :vnok.UV/comment])))
+
+(defmethod c/parse-exp-from-json 263 [inp]
+  (merge
+    (parser-common inp)
+    {:type "vnok/UV"
+     :date (jp/at-path
+             "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
+             inp)
+     :reason
+           (uv-reason-decode
+             (jp/at-path
+               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[0].Value"
+               inp))
+     :comment (jp/at-path
+               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[3].ItemList[1].Value"
+               inp)}))

@@ -127,3 +127,21 @@
        :has-deviations   "Да",
        :verified         true}
       (read-exp-from-file "vnok/PE.v2-v10.json"))))
+
+(deftest vnok.UV-test
+  (is
+    (=
+      {:patient  {:name     "01-003",
+                  :birthday "1944-02-10",
+                  :gender   "Женский",
+                  :rand-num ""},
+       :date     "2018-07-02",
+       :group    "1",
+       :type     "vnok/UV",
+       :finished true,
+       :reason   "НЯ/СНЯ",
+       :visit    "vnok/se.UV",
+       :comment  "1",
+       :location "01",
+       :verified true}
+      (read-exp-from-file "vnok/UV.json"))))
