@@ -19,7 +19,8 @@
 
    "https://test.test"
    {:get (fn [r] {:status 400})
-    :post (fn [r] {:status 200})}})
+    :post (fn [r] {:status 200})}
+   })
 
 (defn start-system []
   (alter-var-root #'test-system (constantly (create-test-system)))
@@ -43,16 +44,24 @@
           (:status (a/<!! (network/get (:network test-system) "https://google.com")))
           200))))
 
-; TODO: Mock the request
-(deftest cookie-test
-  (is (= (do
-           (a/<!! (network/get (:network test-system) "https://google.com"))
-           (keys (cookies/get-cookies (get-in test-system [:network :cookie-store]))))
-         ["1P_JAR" "NID"])))
-
 (deftest post-test
   (fake/with-global-fake-routes-in-isolation
     fake-routes
     (is (=
           (:status (a/<!! (network/post (:network test-system) "https://test.test")))
           200))))
+
+; Check that we correctly handle non-200 http responses
+(deftest http-error-test
+  (fake/with-global-fake-routes-in-isolation
+    fake-routes
+    (is (=
+          (:status (a/<!! (network/get (:network test-system) "https://test.test")))
+          400))))
+
+; TODO: Mock the request
+(deftest cookie-test
+  (is (= (do
+           (a/<!! (network/get (:network test-system) "https://google.com"))
+           (keys (cookies/get-cookies (get-in test-system [:network :cookie-store]))))
+         ["1P_JAR" "NID"])))

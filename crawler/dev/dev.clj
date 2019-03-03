@@ -31,9 +31,3 @@
     :network (network/make-network 10)))
 
 (set-init (fn [_] (dev-system)))
-
-;(try
-;  (network/get (:network system) "https://google.com")
-;  (catch Exception e
-;    (pprint (ex-data e))))
-;(cookies/get-cookies (get-in system [:network :cookie-store]))

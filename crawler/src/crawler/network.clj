@@ -4,14 +4,16 @@
             [clj-http.client :as http]
             [clj-http.conn-mgr]
             [clj-http.cookies])
-  (:refer-clojure :exclude [get]))
+  (:refer-clojure :exclude [get])
+  (:import (java.util.concurrent Executors ExecutorService)))
 
 ;;; Low-level networking functions: manages persistent connections, thread pool,
-;;; request frequency, request failures and so on.
+;;; rate limiting, request failures and so on.
 
-(defrecord Network [num-threads cookie-store conn-mgr thread-pool]
+(defrecord Network
+  [num-threads cookie-store conn-mgr ^ExecutorService thread-pool]
+
   component/Lifecycle
-
   (start [this]
     (println "Starting network service")
     (-> this
@@ -20,29 +22,56 @@
                            {:timeout 10
                             :threads num-threads
                             :default-per-route num-threads
-                            :insecure? true}))))
+                            :insecure? true}))
+        (assoc :thread-pool (Executors/newFixedThreadPool num-threads))))
   (stop [this]
     (println "Stopping network service")
     (clj-http.conn-mgr/shutdown-manager conn-mgr)
+    (.shutdownNow thread-pool)
     this))
 
 (defn make-network [num-threads]
   (map->Network {:num-threads num-threads}))
 
-(defn- request [network req-func url params]
-  (let [c (a/promise-chan)]
-    (a/put!
-      c
-      (req-func url (merge
-                      {:cookie-store       (:cookie-store network)
-                       :connection-manager (:conn-mgr network)}
-                      params)))
-    c))
+;; Helper function which performs synchronous request.
+;; Never throws an exception. Response is either clj-http response, or a map
+;; with a {:status "error"} member and additional information to debug the issue.
+(defn- request [network url params]
+  (try
+    (http/request (merge
+                    {:url url
+                     :cookie-store       (:cookie-store network)
+                     :connection-manager (:conn-mgr network)
+                     :socket-timeout     5000
+                     :conn-timeout       5000
+                     :throw-exceptions   false}
+                    params))
+    (catch Exception e
+      {:status "error"
+       :msg    (str "Failed to make a network request to the " url)
+       :params params
+       :cause  e})))
 
+;; Async wrapper over the 'request' function. Delegates request execution to the
+;; fixed thread pool. Returns promise chanel. Doesn't throw.
+(defn- async-request [network url params]
+  (let [ret-chan (a/promise-chan)
+        {^ExecutorService thread-pool :thread-pool} network]
+    (.execute thread-pool
+              #(a/put! ret-chan
+                       (request network url params)))
+    ret-chan))
+
+;; Performs an async http get request. 'params' are passed to the clj-http.
+;; Returns a promise chanel. Doesn't throw.
 (defn get
   ([network url] (get network url nil))
-  ([network url params] (request network http/get url params)))
+  ([network url params]
+   (async-request network url (merge params {:method :get}))))
 
+;; Performs an async http post request. 'params' are passed to the clj-http.
+;; Returns a promise chanel. Doesn't throw.
 (defn post
   ([network url] (post network url nil))
-  ([network url params] (request network http/post url params)))
+  ([network url params]
+   (async-request network url (merge params {:method :post}))))
