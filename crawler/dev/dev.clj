@@ -6,6 +6,7 @@
   `com.stuartsierra.component.repl/system`.
   See also https://github.com/stuartsierra/component.repl"
   (:require
+   [clojure.core.async :as a]
    [clojure.java.io :as io]
    [clojure.java.javadoc :refer [javadoc]]
    [clojure.pprint :refer [pprint]]
@@ -17,8 +18,10 @@
    [clojure.tools.namespace.repl :refer [refresh refresh-all clear]]
    [com.stuartsierra.component :as component]
    [com.stuartsierra.component.repl :refer [reset set-init start stop system]]
+   [clj-http.cookies :as cookies]
 
-   [crawler.network :as network]))
+   [crawler.network :as network]
+   ))
 
 ;; Do not try to load source code from 'resources' directory
 (clojure.tools.namespace.repl/set-refresh-dirs "dev" "src" "test")
@@ -28,3 +31,9 @@
     :network (network/make-network 10)))
 
 (set-init (fn [_] (dev-system)))
+
+;(try
+;  (network/get (:network system) "https://google.com")
+;  (catch Exception e
+;    (pprint (ex-data e))))
+;(cookies/get-cookies (get-in system [:network :cookie-store]))
