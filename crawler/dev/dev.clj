@@ -22,7 +22,10 @@
    [clj-http.cookies :as cookies]
 
    [crawler.network :as network]
-   ))
+   )
+
+  (:import (org.jsoup Jsoup)
+           (org.jsoup.nodes Document Element)))
 
 ;; Do not try to load source code from 'resources' directory
 (clojure.tools.namespace.repl/set-refresh-dirs "dev" "src" "test")
@@ -33,6 +36,11 @@
                                     :rate 10})))
 
 (set-init (fn [_] (dev-system)))
+
+;(def html-doc (Jsoup/parse (slurp (io/resource "psrser/subject-matrix-c01.html"))))
+;(def el (.select ^Document html-doc "#__VIEWSTATE"))
+;
+;(.attr el "value")
 
 ;(try
 ;  (a/<!! (network/get (:network system) "https://www.google.com"))

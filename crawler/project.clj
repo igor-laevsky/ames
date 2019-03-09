@@ -14,7 +14,9 @@
                  [org.slf4j/slf4j-api "1.7.25"]
                  [org.clojure/tools.logging "0.3.1"]
 
-                 [diehard "0.8.0"]]
+                 [diehard "0.8.0"]
+
+                 [org.jsoup/jsoup "1.11.3"]]
   :profiles {:dev
              {:dependencies [[org.clojure/test.check "0.10.0-alpha3"]
                              [orchestra "2018.12.06-2"]
