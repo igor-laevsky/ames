@@ -34,10 +34,11 @@
 (set-init (fn [_] (dev-system)))
 
 ;(try
-;  (pprint (a/<!! (network/get (:network system) "https://www.google.com")))
+;  (a/<!! (network/get (:network system) "https://www.google.com"))
 ;  (catch Exception e
 ;    (prn e (ex-data e))))
 ;(cookies/get-cookies (get-in system [:network :cookie-store]))
 ;(alter-var-root #'network/a (constantly 10))
 
-(log/trace "123" {:as 123 :asd 'asd})
+;(log/trace "123" {:as 123 :asd 'asd})
+;(network/get (:network system) "https://www.google.com")

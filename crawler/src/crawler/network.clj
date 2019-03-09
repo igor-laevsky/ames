@@ -1,5 +1,6 @@
 (ns crawler.network
   (:require [clojure.core.async :as a]
+            [clojure.tools.logging :as log]
             [com.stuartsierra.component :as component]
             [clj-http.client :as http]
             [clj-http.conn-mgr]
@@ -15,7 +16,7 @@
 
   component/Lifecycle
   (start [{{:keys [num-threads]} :params :as this}]
-    (println "Starting network service" params)
+    (log/info "Starting network service" params)
     (-> this
         (assoc :cookie-store (clj-http.cookies/cookie-store))
         (assoc :conn-mgr (clj-http.conn-mgr/make-reusable-conn-manager
@@ -25,7 +26,7 @@
                             :insecure? true}))
         (assoc :thread-pool (Executors/newFixedThreadPool num-threads))))
   (stop [this]
-    (println "Stopping network service")
+    (log/info "Stopping network service" params)
     (clj-http.conn-mgr/shutdown-manager conn-mgr)
     (.shutdownNow thread-pool)
     this))
@@ -41,6 +42,7 @@
 ;; with a {:status "error"} member and additional information to debug the issue.
 (defn- request [network url params]
   (try
+    (log/info "Executing request" {:url url :method (:method params)})
     (http/request (merge
                     {:url url
                      :cookie-store       (:cookie-store network)
@@ -60,6 +62,7 @@
 (defn- async-request [network url params]
   (let [ret-chan (a/promise-chan)
         {^ExecutorService thread-pool :thread-pool} network]
+    (log/info "Scheduling request" {:url url :method (:method params)})
     (.execute thread-pool
               #(a/put! ret-chan
                        (request network url params)))
