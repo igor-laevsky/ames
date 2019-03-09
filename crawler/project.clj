@@ -20,5 +20,5 @@
                              [org.clojure/tools.namespace "0.2.11"]
                              [com.stuartsierra/component.repl "0.2.0"]]
               :source-paths ["dev"]
-              :resource-paths ["test/resource"]}}
+              :resource-paths ["test/resources"]}}
 )
