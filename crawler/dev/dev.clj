@@ -16,6 +16,7 @@
    [clojure.string :as string]
    [clojure.test :as test]
    [clojure.tools.namespace.repl :refer [refresh refresh-all clear]]
+   [clojure.tools.logging :as log]
    [com.stuartsierra.component :as component]
    [com.stuartsierra.component.repl :refer [reset set-init start stop system]]
    [clj-http.cookies :as cookies]
@@ -28,6 +29,15 @@
 
 (defn dev-system []
   (component/system-map
-    :network (network/make-network 10)))
+    :network (network/make-network {:num-threads 10})))
 
 (set-init (fn [_] (dev-system)))
+
+;(try
+;  (pprint (a/<!! (network/get (:network system) "https://www.google.com")))
+;  (catch Exception e
+;    (prn e (ex-data e))))
+;(cookies/get-cookies (get-in system [:network :cookie-store]))
+;(alter-var-root #'network/a (constantly 10))
+
+(log/trace "123" {:as 123 :asd 'asd})

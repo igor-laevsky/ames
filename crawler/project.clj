@@ -8,7 +8,11 @@
                  [org.clojure/core.async "0.4.490"]
                  [clj-time "0.15.0"]
                  [clj-http "3.9.1"]
-                 [com.stuartsierra/component "0.4.0"]]
+                 [com.stuartsierra/component "0.4.0"]
+
+                 [ch.qos.logback/logback-classic "1.2.3"]
+                 [org.slf4j/slf4j-api "1.7.25"]
+                 [org.clojure/tools.logging "0.3.1"]]
   :profiles {:dev
              {:dependencies [[org.clojure/test.check "0.10.0-alpha3"]
                              [orchestra "2018.12.06-2"]

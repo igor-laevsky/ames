@@ -11,11 +11,11 @@
 ;;; rate limiting, request failures and so on.
 
 (defrecord Network
-  [num-threads cookie-store conn-mgr ^ExecutorService thread-pool]
+  [cookie-store conn-mgr ^ExecutorService thread-pool params]
 
   component/Lifecycle
-  (start [this]
-    (println "Starting network service")
+  (start [{{:keys [num-threads]} :params :as this}]
+    (println "Starting network service" params)
     (-> this
         (assoc :cookie-store (clj-http.cookies/cookie-store))
         (assoc :conn-mgr (clj-http.conn-mgr/make-reusable-conn-manager
@@ -30,8 +30,11 @@
     (.shutdownNow thread-pool)
     this))
 
-(defn make-network [num-threads]
-  (map->Network {:num-threads num-threads}))
+;; Creates a non-started network service.
+;; 'params' is a map of:
+;;   :num-threads - number of threads in a request thread pool
+(defn make-network [params]
+  (map->Network {:params params}))
 
 ;; Helper function which performs synchronous request.
 ;; Never throws an exception. Response is either clj-http response, or a map

@@ -11,7 +11,7 @@
 
 (defn create-test-system []
   (component/system-map
-    :network (network/make-network 10)))
+    :network (network/make-network {:num-threads 10})))
 
 (def fake-routes
   {"https://google.com"
