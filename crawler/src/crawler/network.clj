@@ -4,7 +4,9 @@
             [com.stuartsierra.component :as component]
             [clj-http.client :as http]
             [clj-http.conn-mgr]
-            [clj-http.cookies])
+            [clj-http.cookies]
+            [diehard.core :as dh]
+            [diehard.rate-limiter])
   (:refer-clojure :exclude [get])
   (:import (java.util.concurrent Executors ExecutorService)))
 
@@ -12,7 +14,7 @@
 ;;; rate limiting, request failures and so on.
 
 (defrecord Network
-  [cookie-store conn-mgr ^ExecutorService thread-pool params]
+  [cookie-store conn-mgr ^ExecutorService thread-pool rate-limiter params]
 
   component/Lifecycle
   (start [{{:keys [num-threads]} :params :as this}]
@@ -24,7 +26,8 @@
                             :threads num-threads
                             :default-per-route num-threads
                             :insecure? true}))
-        (assoc :thread-pool (Executors/newFixedThreadPool num-threads))))
+        (assoc :thread-pool (Executors/newFixedThreadPool num-threads))
+        (assoc :rate-limiter (diehard.rate-limiter/rate-limiter params))))
   (stop [this]
     (log/info "Stopping network service" params)
     (clj-http.conn-mgr/shutdown-manager conn-mgr)
@@ -34,6 +37,7 @@
 ;; Creates a non-started network service.
 ;; 'params' is a map of:
 ;;   :num-threads - number of threads in a request thread pool
+;;   :rate - maximum number of requests per second
 (defn make-network [params]
   (map->Network {:params params}))
 
@@ -42,15 +46,16 @@
 ;; with a {:status "error"} member and additional information to debug the issue.
 (defn- request [network url params]
   (try
-    (log/info "Executing request" {:url url :method (:method params)})
-    (http/request (merge
-                    {:url url
-                     :cookie-store       (:cookie-store network)
-                     :connection-manager (:conn-mgr network)
-                     :socket-timeout     5000
-                     :conn-timeout       5000
-                     :throw-exceptions   false}
-                    params))
+    (dh/with-rate-limiter (:rate-limiter network)
+      (log/info "Executing request" {:url url :method (:method params)})
+      (http/request (merge
+                      {:url                url
+                       :cookie-store       (:cookie-store network)
+                       :connection-manager (:conn-mgr network)
+                       :socket-timeout     5000
+                       :conn-timeout       5000
+                       :throw-exceptions   false}
+                      params)))
     (catch Exception e
       {:status "error"
        :msg    (str "Failed to make a network request to the " url)

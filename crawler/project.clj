@@ -12,13 +12,15 @@
 
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [org.slf4j/slf4j-api "1.7.25"]
-                 [org.clojure/tools.logging "0.3.1"]]
+                 [org.clojure/tools.logging "0.3.1"]
+
+                 [diehard "0.8.0"]]
   :profiles {:dev
              {:dependencies [[org.clojure/test.check "0.10.0-alpha3"]
                              [orchestra "2018.12.06-2"]
                              [clj-http-fake "1.0.3"]
                              [org.clojure/tools.namespace "0.2.11"]
                              [com.stuartsierra/component.repl "0.2.0"]]
-              :source-paths ["dev"]
-              :resource-paths ["test/resources"]}}
+              :source-paths ["dev"]}
+             :test [:dev {:resource-paths ["test/resources"]}]}
 )

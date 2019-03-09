@@ -29,7 +29,8 @@
 
 (defn dev-system []
   (component/system-map
-    :network (network/make-network {:num-threads 10})))
+    :network (network/make-network {:num-threads 10
+                                    :rate 10})))
 
 (set-init (fn [_] (dev-system)))
 
