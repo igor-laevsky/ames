@@ -13,6 +13,8 @@
 ;;; Low-level networking functions: manages persistent connections, thread pool,
 ;;; rate limiting, request failures and so on.
 
+(def common-headers {"User-Agent" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"})
+
 (defrecord Network
   [cookie-store conn-mgr ^ExecutorService thread-pool rate-limiter params]
 
@@ -52,6 +54,7 @@
                       {:url                url
                        :cookie-store       (:cookie-store network)
                        :connection-manager (:conn-mgr network)
+                       :headers common-headers
                        :socket-timeout     5000
                        :conn-timeout       5000
                        :throw-exceptions   false}
@@ -67,6 +70,7 @@
 (defn- async-request [network url params]
   (let [ret-chan (a/promise-chan)
         {^ExecutorService thread-pool :thread-pool} network]
+
     (log/trace "Scheduling request" {:url url :method (:method params)})
     (.execute thread-pool
               #(a/put! ret-chan
