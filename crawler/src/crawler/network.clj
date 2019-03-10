@@ -47,7 +47,7 @@
 (defn- request [network url params]
   (try
     (dh/with-rate-limiter (:rate-limiter network)
-      (log/info "Executing request" {:url url :method (:method params)})
+      (log/trace "Executing request" {:url url :method (:method params)})
       (http/request (merge
                       {:url                url
                        :cookie-store       (:cookie-store network)
@@ -67,7 +67,7 @@
 (defn- async-request [network url params]
   (let [ret-chan (a/promise-chan)
         {^ExecutorService thread-pool :thread-pool} network]
-    (log/info "Scheduling request" {:url url :method (:method params)})
+    (log/trace "Scheduling request" {:url url :method (:method params)})
     (.execute thread-pool
               #(a/put! ret-chan
                        (request network url params)))

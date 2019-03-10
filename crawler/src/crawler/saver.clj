@@ -28,7 +28,8 @@
         (assoc :file-writer (io/writer (:file-name params) :encoding "UTF-8"))))
   (stop [this]
     (log/info "Stopping file based saver")
-    (.close file-writer))
+    (.close file-writer)
+    this)
 
   Saver
   (-save [this exp]
@@ -40,7 +41,6 @@
 
 ;; Receives parsed exp conforming to the cdl spec and synchronously saves it
 ;; according with the saver policy.
-;; Note: protocol function is wrapped in order to allow spec instrumentation.
 (defn save [saver exp]
   (-save saver exp))
 
