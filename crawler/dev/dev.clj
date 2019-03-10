@@ -53,5 +53,3 @@
            [:network :saver])))
 
 (set-init (fn [_] (dev-system)))
-
-;(etl/do-login (:etl system))

@@ -28,6 +28,8 @@
   (str main-url "MainService.asmx/LoginUser"))
 (defn- subject-matrix-url [{{:keys [main-url]} :params}]
   (str main-url "SubjectMatrix.aspx"))
+(defn- keep-session-url [{{:keys [main-url]} :params}]
+  (str main-url "keepsession.aspx?rnd=" (rand)))
 
 ;; Login into application. Blocks main thread while waiting for the response.
 ;; Return true on success false on failure.
@@ -54,6 +56,11 @@
       :error false
       :ok true
       :has-user (= (parse-response (try-login)) :ok))))
+
+;; Requests server to continue current user session.
+;; Returns promise chanel
+(defn keep-session [etl]
+  (net/get (:network etl) (keep-session-url etl)))
 
 (defn subject-matrix [{:keys [network] :as etl}]
   (net/get network (subject-matrix-url etl)))
