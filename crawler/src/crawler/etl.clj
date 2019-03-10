@@ -3,6 +3,7 @@
             [clojure.tools.logging :as log]
             [clj-time.format :as time-fmt]
             [clj-time.core :as time]
+            [clojure.core.async :as a]
 
             [crawler.network :as net]
             [crawler.saver :as s]))
@@ -28,7 +29,9 @@
 (defn- subject-matrix-url [{{:keys [main-url]} :params}]
   (str main-url "SubjectMatrix.aspx"))
 
-(defn do-login [{{:keys [login password]} :params :as etl}]
+;; Login into application. Blocks main thread while waiting for the response.
+;; Return true on success false on failure.
+(defn login! [{{:keys [login password]} :params :as etl}]
   (let [login-data-format
         "{login:\"%s\", password:\"%s\", localTime:\"%s UTC +0300\",
          userAgent:\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36\"}"
@@ -37,11 +40,20 @@
                        (time/from-time-zone (time/now)
                                             (time/time-zone-for-offset -3)))
         login-data (format login-data-format login password cur-date-str)
-        try-login (fn [] (net/post (:network etl)
-                                   (login-url etl)
-                                   {:content-type :json
-                                    :body login-data}))]
-    (try-login)))
+        try-login
+        (fn [] (a/<!! (net/post (:network etl)
+                                (login-url etl)
+                                {:content-type :json
+                                 :body login-data})))
+        parse-response
+        (fn [resp] (cond
+                     (not= (:status resp) 200) :error
+                     (.contains (:body resp) "loghasusererror") :has-user
+                     (.contains (:body resp) "logok") :ok))]
+    (case (parse-response (try-login))
+      :error false
+      :ok true
+      :has-user (= (parse-response (try-login)) :ok))))
 
 (defn subject-matrix [{:keys [network] :as etl}]
   (net/get network (subject-matrix-url etl)))
