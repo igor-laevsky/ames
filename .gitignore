@@ -17,3 +17,4 @@ pom.xml.asc
 .nrepl-port
 resource/
 crawler/test/resources/parser/
+crawler/resources/creds.edn

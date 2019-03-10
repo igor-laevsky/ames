@@ -23,10 +23,14 @@
    [com.stuartsierra.component.repl :refer [reset set-init start stop system]]
    [clj-http.cookies :as cookies]
    [orchestra.spec.test :as st]
+   [clj-time.format :as tf]
+   [clj-time.core :as t]
+   [clj-time.local :as l]
 
    [crawler.network :as network]
-   [crawler.extractor :as parser]
+   [crawler.extractor :as extractor]
    [crawler.saver :as saver]
+   [crawler.etl :as etl]
    [cdl.core :as cdl])
 
   (:import (org.jsoup Jsoup)
@@ -37,10 +41,16 @@
 ;; Do not try to load source code from 'resources' directory
 (clojure.tools.namespace.repl/set-refresh-dirs "dev" "src" "test" "checkouts")
 
+(def creds (read-string (slurp (io/reader (io/resource "creds.edn")))))
+
 (defn dev-system []
   (component/system-map
     :network (network/make-network {:num-threads 10
                                     :rate 10})
-    :saver (saver/make-file-saver {:file-name "test/resources/saver/tmp.json"})))
+    :saver (saver/make-file-saver {:file-name "test/resources/saver/tmp.json"})
+    :etl (component/using
+           (etl/make-etl creds)
+           [:network :saver])))
 
 (set-init (fn [_] (dev-system)))
+
