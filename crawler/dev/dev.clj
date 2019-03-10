@@ -41,16 +41,6 @@
   (component/system-map
     :network (network/make-network {:num-threads 10
                                     :rate 10})
-    :saver (saver/make-no-op-saver)))
+    :saver (saver/make-file-saver {:file-name "test/resources/saver/tmp.json"})))
 
 (set-init (fn [_] (dev-system)))
-
-(defn read-exp-from-file [fname]
-  (-> fname
-      (io/resource)
-      (slurp)
-      (js/read-str :key-fn keyword)
-      (cdl/json->exp)))
-
-(def exp (read-exp-from-file "vnok/DEMO.json"))
-(saver/save (:saver system) exp)
