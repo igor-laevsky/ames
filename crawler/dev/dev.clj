@@ -17,47 +17,40 @@
    [clojure.test :as test]
    [clojure.tools.namespace.repl :refer [refresh refresh-all clear]]
    [clojure.tools.logging :as log]
+   [clojure.data.json :as js]
+   [clojure.spec.alpha :as s]
    [com.stuartsierra.component :as component]
    [com.stuartsierra.component.repl :refer [reset set-init start stop system]]
    [clj-http.cookies :as cookies]
+   [orchestra.spec.test :as st]
 
    [crawler.network :as network]
    [crawler.extractor :as parser]
-   )
+   [crawler.saver :as saver]
+   [cdl.core :as cdl])
 
   (:import (org.jsoup Jsoup)
            (org.jsoup.nodes Document Element)))
 
+(st/instrument)
+
 ;; Do not try to load source code from 'resources' directory
-(clojure.tools.namespace.repl/set-refresh-dirs "dev" "src" "test")
+(clojure.tools.namespace.repl/set-refresh-dirs "dev" "src" "test" "checkouts")
 
 (defn dev-system []
   (component/system-map
     :network (network/make-network {:num-threads 10
-                                    :rate 10})))
+                                    :rate 10})
+    :saver (saver/make-no-op-saver)))
 
 (set-init (fn [_] (dev-system)))
 
-(def t (parser/extract-exps (slurp (io/resource "parser/visit-matrix-c01-SCR.html"))))
-(->> (.select t "row")
-     (mapcat (fn [row]
-               (map
-                 (fn [cell] (hash-map :id (.attr cell "ID") :context {:rand-num (.attr row "RANDNUM")}))
-                 (.select row "cell[ID]")))))
+(defn read-exp-from-file [fname]
+  (-> fname
+      (io/resource)
+      (slurp)
+      (js/read-str :key-fn keyword)
+      (cdl/json->exp)))
 
-;(.select row "cell:not([status=0])")
-
-;(def html-doc (Jsoup/parse (slurp (io/resource "psrser/subject-matrix-c01.html"))))
-;(def el (.select ^Document html-doc "#__VIEWSTATE"))
-;
-;(.attr el "value")
-
-;(try
-;  (a/<!! (network/get (:network system) "https://www.google.com"))
-;  (catch Exception e
-;    (prn e (ex-data e))))
-;(cookies/get-cookies (get-in system [:network :cookie-store]))
-;(alter-var-root #'network/a (constantly 10))
-
-;(log/trace "123" {:as 123 :asd 'asd})
-;(network/get (:network system) "https://www.google.com")
+(def exp (read-exp-from-file "vnok/DEMO.json"))
+(saver/save (:saver system) exp)
