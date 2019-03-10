@@ -22,6 +22,7 @@
    [clj-http.cookies :as cookies]
 
    [crawler.network :as network]
+   [crawler.parser :as parser]
    )
 
   (:import (org.jsoup Jsoup)
@@ -36,6 +37,8 @@
                                     :rate 10})))
 
 (set-init (fn [_] (dev-system)))
+
+;(def t (parser/extract-xml-state (slurp (io/resource "parser/subject-matrix-c01.html"))))
 
 ;(def html-doc (Jsoup/parse (slurp (io/resource "psrser/subject-matrix-c01.html"))))
 ;(def el (.select ^Document html-doc "#__VIEWSTATE"))

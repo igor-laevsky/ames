@@ -24,3 +24,12 @@
         xml-start (string/index-of js-cpdata "<?xml version")
         xml-end (string/index-of js-cpdata "';" xml-start)]
     (Jsoup/parse (subs js-cpdata xml-start xml-end))))
+
+
+;; Receives subject matrix as input and returns set of visits in the form of:
+;; #{"visit.Name&rk=group_id" ...}
+(defn extract-visits [input]
+  (let [xml-matrix (extract-xml-state input)]
+    (->> (.select xml-matrix "cell")
+         (map #(str (.attr % "OID") "&rk=" (.attr % "RepeatKey")))
+         (set))))
