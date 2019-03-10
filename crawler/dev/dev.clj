@@ -22,7 +22,7 @@
    [clj-http.cookies :as cookies]
 
    [crawler.network :as network]
-   [crawler.parser :as parser]
+   [crawler.extractor :as parser]
    )
 
   (:import (org.jsoup Jsoup)
@@ -38,7 +38,14 @@
 
 (set-init (fn [_] (dev-system)))
 
-;(def t (parser/extract-xml-state (slurp (io/resource "parser/subject-matrix-c01.html"))))
+(def t (parser/extract-exps (slurp (io/resource "parser/visit-matrix-c01-SCR.html"))))
+(->> (.select t "row")
+     (mapcat (fn [row]
+               (map
+                 (fn [cell] (hash-map :id (.attr cell "ID") :context {:rand-num (.attr row "RANDNUM")}))
+                 (.select row "cell[ID]")))))
+
+;(.select row "cell:not([status=0])")
 
 ;(def html-doc (Jsoup/parse (slurp (io/resource "psrser/subject-matrix-c01.html"))))
 ;(def el (.select ^Document html-doc "#__VIEWSTATE"))

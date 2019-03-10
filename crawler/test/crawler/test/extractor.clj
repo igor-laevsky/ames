@@ -1,6 +1,6 @@
-(ns crawler.test.parser
+(ns crawler.test.extractor
   (:require [clojure.test :refer :all]
-            [crawler.parser :as p]
+            [crawler.extractor :as p]
             [clojure.java.io :as io]))
 
 (defn get-test-file [fname]
@@ -43,3 +43,20 @@
            "se.PR&rk=0"
            "se.V12&rk=0"}
          (p/extract-visits (get-test-file "subject-matrix-c01.html")))))
+
+(deftest test-extract-exps
+  (let [exps (p/extract-exps (get-test-file "visit-matrix-c01-SCR.html"))]
+    (is (= [{:id "45", :context {:rand-num ""}}
+            {:id "52", :context {:rand-num ""}}
+            {:id "88", :context {:rand-num "R001"}}
+            {:id "147", :context {:rand-num "R001"}}
+            {:id "137", :context {:rand-num "R001"}}
+            {:id "148", :context {:rand-num "R001"}}])
+        (take 6 exps))
+    (is (= [{:id "14599", :context {:rand-num "R462"}}
+            {:id "13398", :context {:rand-num "R462"}}
+            {:id "14600", :context {:rand-num "R462"}}
+            {:id "14601", :context {:rand-num "R462"}}
+            {:id "14602", :context {:rand-num "R462"}}
+            {:id "16295", :context {:rand-num "R022"}}]
+           (take-last 6 exps)))))

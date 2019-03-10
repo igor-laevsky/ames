@@ -1,4 +1,4 @@
-(ns crawler.parser
+(ns crawler.extractor
   (:require [clojure.string :as string])
   (:import (org.jsoup Jsoup)
            (org.jsoup.nodes Document)))
@@ -26,10 +26,23 @@
     (Jsoup/parse (subs js-cpdata xml-start xml-end))))
 
 
-;; Receives subject matrix as input and returns set of visits in the form of:
+;; Receives subject matrix as string and returns set of visits in the form of:
 ;; #{"visit.Name&rk=group_id" ...}
 (defn extract-visits [input]
   (let [xml-matrix (extract-xml-state input)]
     (->> (.select xml-matrix "cell")
          (map #(str (.attr % "OID") "&rk=" (.attr % "RepeatKey")))
          (set))))
+
+;; Receives visit matrix as string and returns seq of exp id's in the form of:
+;; ({:id "1234", :context {:rand-num "R123"}} ...)
+(defn extract-exps [input]
+  (let [xml-matrix (extract-xml-state input)]
+    (->> (.select xml-matrix "row")
+         (mapcat
+           (fn [row]
+             (map
+               (fn [cell]
+                 (hash-map :id (.attr cell "ID")
+                           :context {:rand-num (.attr row "RANDNUM")}))
+               (.select row "cell[ID]")))))))
