@@ -13,8 +13,7 @@
           "__EVENTARGUMENT" ""
           "__VIEWSTATE" "/wEPDwUKMTc4MjUyNjY2MmRkWxtguUnhMfRdoRX8nOa6pvO6yqW0KVtFGgQgvJ2fmT4="
           "__VIEWSTATEGENERATOR" "F098D98A"}
-         (p/extract-viewstate (get-test-file "subject-matrix-c01.html"))
-         )))
+         (p/extract-view-state (get-test-file "subject-matrix-c01.html")))))
 
 (deftest test-extract-visits
   (is (= #{"se.V9&rk=0"

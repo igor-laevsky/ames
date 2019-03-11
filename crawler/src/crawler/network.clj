@@ -57,7 +57,8 @@
                        :headers common-headers
                        :socket-timeout     5000
                        :conn-timeout       5000
-                       :throw-exceptions   false}
+                       :throw-exceptions   false
+                       :redirect-strategy :none}
                       params)))
     (catch Exception e
       {:status "error"

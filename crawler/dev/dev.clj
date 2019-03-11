@@ -26,6 +26,7 @@
    [clj-time.format :as tf]
    [clj-time.core :as t]
    [clj-time.local :as l]
+   [clj-http.util]
 
    [crawler.network :as network]
    [crawler.extractor :as extractor]

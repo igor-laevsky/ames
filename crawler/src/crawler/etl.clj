@@ -6,6 +6,7 @@
             [clojure.core.async :as a]
 
             [crawler.network :as net]
+            [crawler.extractor :as extr]
             [crawler.saver :as s]))
 
 ;;; Extracts all exps in a given site and saves them using 'saver'.
@@ -31,7 +32,7 @@
 (defn- keep-session-url [{{:keys [main-url]} :params}]
   (str main-url "keepsession.aspx?rnd=" (rand)))
 
-;; Login into application. Blocks main thread while waiting for the response.
+;; Login into application. Blocks caller thread while waiting for the response.
 ;; Return true on success false on failure.
 (defn login! [{{:keys [login password]} :params :as etl}]
   (let [login-data-format
@@ -57,10 +58,26 @@
       :ok true
       :has-user (= (parse-response (try-login)) :ok))))
 
-;; Requests server to continue current user session.
-;; Returns promise chanel
+(defn subject-matrix [{:keys [network] :as etl}]
+  (net/get network (subject-matrix-url etl)))
+
+;; RCP call .net style. Blocks caller while waiting for the response.
+;; Returns non-modified server response map as per clj-http.
+;; There is no way to check if server had received the callback so this will
+;; silently not work in case of any errors.
+(defn call-server-menu! [etl name]
+  (let [view-state (some-> (subject-matrix etl)
+                           (a/<!!)
+                           (:body)
+                           (extr/extract-view-state))
+        args (merge view-state {"__CALLBACKID" "ctl00"
+                                "__CALLBACKPARAM" name})]
+    (-> (net/post (:network etl)
+                  (subject-matrix-url etl)
+                  {:form-params args})
+        (a/<!!))))
+
+;; Requests server to continue current user session. Return promise chanel.
 (defn keep-session [etl]
   (net/get (:network etl) (keep-session-url etl)))
 
-(defn subject-matrix [{:keys [network] :as etl}]
-  (net/get network (subject-matrix-url etl)))

@@ -9,7 +9,7 @@
 
 ;; Receives input html as string. Returns map containing all view-state
 ;; related keys required to switch centers.
-(defn extract-viewstate [input]
+(defn extract-view-state [input]
   (let [document ^Document (Jsoup/parse input)]
     (->> ["__EVENTTARGET" "__EVENTARGUMENT" "__VIEWSTATE" "__VIEWSTATEGENERATOR"]
          (mapcat #(vector % (-> document (.select (str "#" %)) (.attr "value"))))
