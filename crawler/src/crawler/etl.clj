@@ -52,7 +52,7 @@
         (a/<!!))))
 
 ;; Login into application. Blocks caller thread while waiting for the response.
-;; Returns true on success false on failure.
+;; Returns true on success nil on failure.
 (defn login! [{{:keys [login password]} :params :as etl}]
   (let [login-data-format
         "{login:\"%s\", password:\"%s\", localTime:\"%s UTC +0300\",
@@ -72,10 +72,13 @@
                      (not= (:status resp) 200) :error
                      (.contains (:body resp) "loghasusererror") :has-user
                      (.contains (:body resp) "logok") :ok))]
-    (case (parse-response (try-login))
-      :error false
+    (case (-> (try-login) (parse-response))
+      :error nil
       :ok true
-      :has-user (= (parse-response (try-login)) :ok))))
+      :has-user (case (-> (try-login) (parse-response))
+                  :error nil
+                  :ok true
+                  :has-user nil))))
 
 ;; Requests server to continue current user session. Doesn't block.
 ;; Returns promise chanel with the network response.
