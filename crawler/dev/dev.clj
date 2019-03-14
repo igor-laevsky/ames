@@ -50,7 +50,9 @@
                                     :rate 10})
     :saver (saver/make-file-saver {:file-name "test/resources/saver/tmp.json"})
     :etl (component/using
-           (etl/make-etl creds)
+           (etl/make-login-etl creds)
            [:network :saver])))
 
 (set-init (fn [_] (dev-system)))
+
+;(a/<!! (etl/subject-matrix (:etl system)))
