@@ -71,14 +71,16 @@
         (fn [resp] (cond
                      (not= (:status resp) 200) :error
                      (.contains (:body resp) "loghasusererror") :has-user
-                     (.contains (:body resp) "logok") :ok))]
+                     (.contains (:body resp) "logok") :ok))
+
+        throw-err (fn [] (throw (ex-info "Failed to login into the system" {})))]
     (case (-> (try-login) (parse-response))
-      :error nil
+      :error (throw-err)
       :ok true
       :has-user (case (-> (try-login) (parse-response))
-                  :error nil
+                  :error (throw-err)
                   :ok true
-                  :has-user nil))))
+                  :has-user (throw-err)))))
 
 ;; Requests server to continue current user session. Doesn't block.
 ;; Returns promise chanel with the network response.
