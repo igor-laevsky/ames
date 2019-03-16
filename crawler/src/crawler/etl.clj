@@ -19,10 +19,49 @@
   (str main-url "SubjectMatrix.aspx"))
 (defn- keep-session-url [{{:keys [main-url]} :params}]
   (str main-url "keepsession.aspx?rnd=" (rand)))
+(defn- visit-url [{{:keys [main-url]} :params} visit]
+  (str main-url "SubjectMatrix.aspx?eOID=" visit))
 
 ;; Get request for the subject matrix. Returns promise chanel.
 (defn subject-matrix [{:keys [network] :as etl}]
   (net/get network (subject-matrix-url etl)))
+
+;; Returns list of visits for the current center. Blocks caller thread.
+;; Throws on error.
+(defn get-visits! [etl]
+  (let [{:keys [status body] :as resp} (a/<!! (subject-matrix etl))]
+    (if (not= status 200)
+      (throw (ex-info "Failed to receive subject matrix" resp))
+      (try
+        (extr/extract-visits body)
+        (catch Exception e
+          (throw (ex-info "Failed to parse subject matrix" resp e)))))))
+
+;; Spawns a go block which receives chanel with visits and pushes list of exps
+;; to the output chanel. Each exp has the form according to the extr/extract-exps
+;; i.e ({:id "1234", :context {:rand-num "R123"}} ...)
+;; Closes to-chan once from-chan is closed.
+(defn start-visit-exp-service [etl from-chan to-chan]
+  (a/go
+    (log/info "Starting visit-exp service")
+    (try
+      (loop []
+        (if-some [v (a/<! from-chan)]
+          (do
+            (log/info "Parsing visit " v)
+            (let [url (visit-url etl v)
+                  {:keys [status body] :as v-resp} (a/<! (net/get (:network etl) url))]
+              (if (nil? (#{200 302} status))
+                (log/warn "Failed to request visit " v-resp)
+                (a/<! (a/onto-chan to-chan (extr/extract-exps body) false))))
+            (recur))
+          (do
+            (a/close! to-chan)
+            (log/info "Exiting from visit-exp service"))))
+      (catch Throwable e
+        (log/warn "Failure in the visit-exp service " e)
+        (log/warn "Restarting visit-exp service after failure")
+        (start-visit-exp-service etl from-chan to-chan)))))
 
 ;; Helper function to perform RCP call .net style.
 ;; Blocks caller while waiting for the response. Returns non-modified server
@@ -93,8 +132,7 @@
 (defn logout! [etl]
   (call-server-menu! etl "logout"))
 
-
-;; ETL which doesn't login, logout or start keep session service.
+;; ETL which doesn't do anything on start and stop.
 (defrecord PlainETL [network saver params]
   component/Lifecycle
   (start [this]

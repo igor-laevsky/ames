@@ -67,7 +67,7 @@
        :cause  e})))
 
 ;; Async wrapper over the 'request' function. Delegates request execution to the
-;; fixed thread pool. Returns promise chanel. Doesn't throw.
+;; fixed thread pool. Returns promise chanel.
 (defn- async-request [network url params]
   (let [ret-chan (a/promise-chan)
         {^ExecutorService thread-pool :thread-pool} network]
@@ -79,14 +79,14 @@
     ret-chan))
 
 ;; Performs an async http get request. 'params' are passed to the clj-http.
-;; Returns a promise chanel. Doesn't throw.
+;; Returns a promise chanel.
 (defn get
   ([network url] (get network url nil))
   ([network url params]
    (async-request network url (merge params {:method :get}))))
 
 ;; Performs an async http post request. 'params' are passed to the clj-http.
-;; Returns a promise chanel. Doesn't throw.
+;; Returns a promise chanel.
 (defn post
   ([network url] (post network url nil))
   ([network url params]
