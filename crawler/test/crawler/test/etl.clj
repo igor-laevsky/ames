@@ -117,7 +117,7 @@
     (try
       (let [from-chan (a/to-chan [{:id "88", :context {:rand-num "R462"}}])
             to-chan (a/chan 100)
-            serv (etl/parse-exp-service (:etl system) from-chan to-chan)
+            serv (etl/start-parse-exp-service (:etl system) from-chan to-chan)
             res (a/<!! to-chan)]
         (is (= {:name "01-002",
                 :birthday "1939-10-06",
@@ -137,7 +137,7 @@
     (try
       (let [exps (a/to-chan [{:id "88", :context {:rand-num "R462"}}])
             parsed-exps (a/chan 100)
-            p-e (etl/parse-exp-service (:etl system) exps parsed-exps)
+            p-e (etl/start-parse-exp-service (:etl system) exps parsed-exps)
             sv (etl/start-save-exp-service (:etl system) parsed-exps)]
         ; Wait for saver to finish saving
         (a/<!! sv)

@@ -70,7 +70,7 @@
 ;; Spawns a go block which receives exps id's, requests them from the server
 ;; and parses into data structures conforming to the ::cdl/exp spec.
 ;; Closes to-chan once from-chan is closed.
-(defn parse-exp-service [etl from-chan to-chan]
+(defn start-parse-exp-service [etl from-chan to-chan]
   (a/go
     (log/info "Starting parse-exp service")
     (try
@@ -96,7 +96,7 @@
       (catch Throwable err
         (log/warn "Failure in the parse-exp service " err)
         (log/warn "Restarting parse-exp service after failure")
-        (parse-exp-service etl from-chan to-chan)))))
+        (start-parse-exp-service etl from-chan to-chan)))))
 
 ;; Spawns a go block which expects stream of parsed exp's and saves them using
 ;; current etl saver.
@@ -220,3 +220,11 @@
 
 ;; Same as for plain etl
 (defn make-login-etl [params] (map->LoginETL {:params params}))
+
+;; Parses all exps from the current center and saves them into saver.
+;(defn parse-center! [etl]
+;  (let [visits-chan (a/chan)
+;        exps-chan (a/chan)
+;        parsed-exps-chan (a/chan)]
+;    ))
+;
