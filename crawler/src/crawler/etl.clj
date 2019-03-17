@@ -222,9 +222,11 @@
 (defn make-login-etl [params] (map->LoginETL {:params params}))
 
 ;; Parses all exps from the current center and saves them into saver.
-;(defn parse-center! [etl]
-;  (let [visits-chan (a/chan)
-;        exps-chan (a/chan)
-;        parsed-exps-chan (a/chan)]
-;    ))
-;
+(defn parse-center! [etl & {:keys [num-parser-threads] :or {num-parser-threads 1}}]
+  (let [visits-chan (a/to-chan (get-visits! etl))
+        exps-chan (a/chan)
+        parsed-exps-chan (a/chan)]
+    (start-visit-exp-service etl visits-chan exps-chan)
+    (dotimes [_ num-parser-threads]
+      (start-parse-exp-service etl exps-chan parsed-exps-chan))
+    (a/<!! (start-save-exp-service etl parsed-exps-chan))))

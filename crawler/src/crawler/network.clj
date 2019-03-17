@@ -55,8 +55,8 @@
                        :cookie-store       (:cookie-store network)
                        :connection-manager (:conn-mgr network)
                        :headers common-headers
-                       :socket-timeout     5000
-                       :conn-timeout       5000
+                       :socket-timeout     30000
+                       :conn-timeout       30000
                        :throw-exceptions   false
                        :redirect-strategy :none}
                       params)))

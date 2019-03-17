@@ -32,6 +32,7 @@
    [crawler.extractor :as extractor]
    [crawler.saver :as saver]
    [crawler.etl :as etl]
+
    [cdl.core :as cdl])
 
   (:import (org.jsoup Jsoup)
