@@ -22,3 +22,11 @@
 ;
 ;(gen/sample (s/gen ::core/exp))
 ;(s/exercise (c/get-exp-spec {:type "vnok/DEMO"}))
+(defn read-json-from-file [fname]
+  (-> fname
+      (io/resource)
+      (slurp)
+      (js/read-str :key-fn keyword)))
+
+(def j (read-json-from-file "vnok/DEMO.json"))
+(jp/at-path "$.context.rand-num" j)

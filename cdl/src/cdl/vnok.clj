@@ -36,7 +36,7 @@
    :patient  {:name     (jp/at-path "$.d.SubjectKey" inp)
               :birthday (jp/at-path "$.d.SubjectBrthDate" inp)
               :gender   (c/gender-decode (jp/at-path "$.d.SubjectSex" inp))
-              :rand-num ""}})
+              :rand-num (str (jp/at-path "$.context.rand-num" inp))}})
 
 ; Screening visit demographic data (DEMO)
 (s/def :vnok.DEMO/date ::c/date-time-str)

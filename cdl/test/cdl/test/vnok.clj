@@ -27,7 +27,7 @@
     (= {:patient      {:name     "01-002",
                        :birthday "1939-10-06",
                        :gender   "Мужской",
-                       :rand-num ""},
+                       :rand-num "R462"},
         :date         "2018-05-28",
         :group        "",
         :age          78,

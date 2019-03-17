@@ -117,7 +117,7 @@
         (is (= {:name "01-002",
                 :birthday "1939-10-06",
                 :gender "Мужской",
-                :rand-num ""}
+                :rand-num "R462"}
                (:patient res)))
         (is (= "2018-05-28" (:date res)))
         (is (= "2018-05-28 07:39" (:agr-datetime res)))

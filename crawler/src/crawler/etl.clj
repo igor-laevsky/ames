@@ -84,7 +84,7 @@
                                  {:content-type :json}))]
               (if (not= status 200)
                 (log/warn "Failed to request exp " e-resp)
-                (if-some [exp (extr/extract-exp body)]
+                (if-some [exp (extr/extract-exp body (:context e))]
                   (do
                     (log/info "Successfully parsed exp " e)
                     (a/>! to-chan exp))

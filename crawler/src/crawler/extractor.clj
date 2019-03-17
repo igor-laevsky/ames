@@ -6,8 +6,8 @@
   (:import (org.jsoup Jsoup)
            (org.jsoup.nodes Document)))
 
-;;; Collection of functions which helps to parse input html into meaningful
-;;; data. Doesn't perform any network requests, only parsing of a raw html.
+;;; Collection of functions which help to parse input html into a meaningful
+;;; data. Doesn't perform any network requests, only parsing of a raw html/json.
 ;;;
 
 ;; Receives input html as string. Returns map containing all view-state
@@ -51,11 +51,13 @@
                (.select row "cell[ID]")))))))
 
 ;; Receives json as string and returns clojure map conforming to the ::cdl.exp
-;; spec. Returns nil if there is no parser for this exp.
+;; spec. Context is additional information received from the 'extract-exps'.
+;; Returns nil if there is no parser for this exp.
 ;; Throws an exception if there was a parser but it returned something which was
 ;; not conforming to the spec or if we failed to parse json.
-(defn extract-exp [input]
-  (let [json-exp (js/read-str input :key-fn keyword)]
+(defn extract-exp [input context]
+  (let [json-exp (merge (js/read-str input :key-fn keyword)
+                        {:context context})]
     (when (cdl/can-parse? json-exp)
       (let [exp (cdl/json->exp json-exp)]
         (if (s/valid? ::cdl/exp exp)
