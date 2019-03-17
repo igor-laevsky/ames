@@ -34,7 +34,9 @@
   Saver
   (-save [this exp]
     (js/write exp file-writer :escape-unicode false)
-    (.write file-writer (System/getProperty "line.separator"))))
+    (.write file-writer (System/getProperty "line.separator"))
+    ; this simplifies testing
+    (.flush file-writer)))
 
 ;; params must contain ':file-name' key.
 (defn make-file-saver [params] (map->FileSaver {:params params}))

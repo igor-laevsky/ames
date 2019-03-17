@@ -2,19 +2,24 @@
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [clojure.core.async :as a]
+            [clojure.data.json :as js]
+            [clojure.spec.alpha :as s]
             [com.stuartsierra.component :as component]
 
             [crawler.etl :as etl]
             [crawler.network :as network]
-            [crawler.saver :as saver]))
+            [crawler.saver :as saver]
+            [cdl.core :as cdl]))
 
 (def creds (read-string (slurp (io/reader (io/resource "creds.edn")))))
+
+(def saver-file "test/resources/saver/tmp.json")
 
 (defn create-test-system [should-login?]
   (-> (component/system-map
         :network (network/make-network {:num-threads 10
                                         :rate        10})
-        :saver (saver/make-file-saver {:file-name "test/resources/saver/tmp.json"})
+        :saver (saver/make-file-saver {:file-name saver-file})
         :etl (component/using
                (if should-login?
                  (etl/make-login-etl creds)
@@ -125,4 +130,24 @@
         ; to-chan is closed and service is stopped
         (is (= false (a/put! to-chan :nothing)))
         (is (= false (a/put! serv :nothing))))
+      (finally (component/stop system)))))
+
+(deftest test-save-exp-service
+  (let [{:keys [etl] :as system} (create-and-start)]
+    (try
+      (let [exps (a/to-chan [{:id "88", :context {:rand-num "R462"}}])
+            parsed-exps (a/chan 100)
+            p-e (etl/parse-exp-service (:etl system) exps parsed-exps)
+            sv (etl/start-save-exp-service (:etl system) parsed-exps)]
+        ; Wait for saver to finish saving
+        (a/<!! sv)
+        ; Re-load saved json
+        (let [saved-exp (js/read (io/reader "test/resources/saver/tmp.json")
+                                 :key-fn keyword)]
+          (is (s/valid? ::cdl/exp saved-exp))
+          (is (= {:name "01-002",
+                  :birthday "1939-10-06",
+                  :gender "Мужской",
+                  :rand-num "R462"}
+                 (:patient saved-exp)))))
       (finally (component/stop system)))))

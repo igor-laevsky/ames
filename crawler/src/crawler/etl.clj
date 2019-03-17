@@ -93,10 +93,31 @@
           (do
             (a/close! to-chan)
             (log/info "Exiting from the parse-exp service"))))
-      (catch Throwable e
-        (log/warn "Failure in the parse-exp service " e)
+      (catch Throwable err
+        (log/warn "Failure in the parse-exp service " err)
         (log/warn "Restarting parse-exp service after failure")
         (parse-exp-service etl from-chan to-chan)))))
+
+;; Spawns a go block which expects stream of parsed exp's and saves them using
+;; current etl saver.
+(defn start-save-exp-service [etl from-chan]
+  (a/go
+    (log/info "Starting save-exp service")
+    (try
+      (loop []
+        (if-some [e (a/<! from-chan)]
+          (do
+            (log/info "Saving exp " (select-keys e [:patient :type :visit]))
+            (try
+              (s/save (:saver etl) e)
+              (catch Throwable err
+                (log/info "Error while saving exp " err)))
+            (recur))
+          (log/info "Exiting from the save-exp service")))
+      (catch Throwable e
+        (log/warn "Failure in the save-exp service " e)
+        (log/warn "Restarting save-exp service after failure")
+        (start-save-exp-service etl from-chan)))))
 
 ;; Helper function to perform RCP call .net style.
 ;; Blocks caller while waiting for the response. Returns non-modified server
