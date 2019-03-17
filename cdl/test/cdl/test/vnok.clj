@@ -7,12 +7,20 @@
 
 (st/instrument)
 
-(defn read-exp-from-file [fname]
+(defn read-json-from-file [fname]
   (-> fname
       (io/resource)
       (slurp)
-      (js/read-str :key-fn keyword)
+      (js/read-str :key-fn keyword)))
+
+(defn read-exp-from-file [fname]
+  (-> (read-json-from-file fname)
       (c/json->exp)))
+
+(deftest test-can-parse
+  (is (c/can-parse? (read-json-from-file "vnok/DEMO.json")))
+  (is (c/can-parse? (read-json-from-file "vnok/MD.json")))
+  (is (not (c/can-parse? {}))))
 
 (deftest vnok.DEMO-test
   (is

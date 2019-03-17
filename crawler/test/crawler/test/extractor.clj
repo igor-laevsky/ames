@@ -59,3 +59,11 @@
             {:id "14602", :context {:rand-num "R462"}}
             {:id "16295", :context {:rand-num "R022"}}]
            (take-last 6 exps)))))
+
+(deftest test-extract-exp
+  (is (nil? (p/extract-exp (get-test-file "DEMO-unparseable.json"))))
+  (is (p/extract-exp (get-test-file "DEMO.json")))
+  (is (try (p/extract-exp (get-test-file "invalid json"))
+           false
+           (catch Throwable e
+             true))))

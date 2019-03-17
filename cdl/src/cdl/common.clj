@@ -14,10 +14,10 @@
 ;; Common interface for each exp
 ;;
 
-(defmulti
-  get-exp-spec :type)
+(defmulti get-exp-spec :type)
 
-(defmulti parse-exp-from-json #(get-in % [:d :FormData :SectionList 0 :ID]))
+(defn dispatch-parser [json] (get-in json [:d :FormData :SectionList 0 :ID]))
+(defmulti parse-exp-from-json dispatch-parser)
 (defmethod parse-exp-from-json :default [j]
   (throw (ex-info
            (str "Unable to find parser for a given exp.")

@@ -106,3 +106,23 @@
         ; Check that service had stopped
         (is (= false (a/put! serv :nothing))))
       (finally (component/stop system)))))
+
+(deftest test-parse-exp-service
+  (let [{:keys [etl] :as system} (create-and-start)]
+    (try
+      (let [from-chan (a/to-chan [{:id "88", :context {:rand-num "R462"}}])
+            to-chan (a/chan 100)
+            serv (etl/parse-exp-service (:etl system) from-chan to-chan)
+            res (a/<!! to-chan)]
+        (is (= {:name "01-002",
+                :birthday "1939-10-06",
+                :gender "Мужской",
+                :rand-num ""}
+               (:patient res)))
+        (is (= "2018-05-28" (:date res)))
+        (is (= "2018-05-28 07:39" (:agr-datetime res)))
+        (is (= "vnok/DEMO") (:type res))
+        ; to-chan is closed and service is stopped
+        (is (= false (a/put! to-chan :nothing)))
+        (is (= false (a/put! serv :nothing))))
+      (finally (component/stop system)))))

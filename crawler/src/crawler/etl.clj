@@ -1,13 +1,15 @@
 (ns crawler.etl
-  (:require [com.stuartsierra.component :as component]
+  (:require [clojure.core.async :as a]
             [clojure.tools.logging :as log]
+            [clojure.core.specs.alpha :as spec]
+            [com.stuartsierra.component :as component]
             [clj-time.format :as time-fmt]
             [clj-time.core :as time]
-            [clojure.core.async :as a]
 
             [crawler.network :as net]
             [crawler.extractor :as extr]
-            [crawler.saver :as s]))
+            [crawler.saver :as s]
+            [clojure.data.json :as js]))
 
 ;;; Extracts all exps in a given site and saves them using 'saver'.
 ;;;
@@ -21,6 +23,8 @@
   (str main-url "keepsession.aspx?rnd=" (rand)))
 (defn- visit-url [{{:keys [main-url]} :params} visit]
   (str main-url "SubjectMatrix.aspx?eOID=" visit))
+(defn- exp-url [{{:keys [main-url]} :params} id]
+  (str main-url "MainService.asmx/GetFormView?formId=" (str id)))
 
 ;; Get request for the subject matrix. Returns promise chanel.
 (defn subject-matrix [{:keys [network] :as etl}]
@@ -51,17 +55,48 @@
             (log/info "Parsing visit " v)
             (let [url (visit-url etl v)
                   {:keys [status body] :as v-resp} (a/<! (net/get (:network etl) url))]
-              (if (nil? (#{200 302} status))
+              (if (not= status 200)
                 (log/warn "Failed to request visit " v-resp)
                 (a/<! (a/onto-chan to-chan (extr/extract-exps body) false))))
             (recur))
           (do
             (a/close! to-chan)
-            (log/info "Exiting from visit-exp service"))))
+            (log/info "Exiting from the visit-exp service"))))
       (catch Throwable e
         (log/warn "Failure in the visit-exp service " e)
         (log/warn "Restarting visit-exp service after failure")
         (start-visit-exp-service etl from-chan to-chan)))))
+
+;; Spawns a go block which receives exps id's, requests them from the server
+;; and parses into data structures conforming to the ::cdl/exp spec.
+;; Closes to-chan once from-chan is closed.
+(defn parse-exp-service [etl from-chan to-chan]
+  (a/go
+    (log/info "Starting parse-exp service")
+    (try
+      (loop []
+        (if-some [e (a/<! from-chan)]
+          (do
+            (log/info "Parsing exp " e)
+            (let [url (exp-url etl (:id e))
+                  {:keys [status body] :as e-resp}
+                  (a/<! (net/get (:network etl) url
+                                 {:content-type :json}))]
+              (if (not= status 200)
+                (log/warn "Failed to request exp " e-resp)
+                (if-some [exp (extr/extract-exp body)]
+                  (do
+                    (log/info "Successfully parsed exp " e)
+                    (a/>! to-chan exp))
+                  (log/info "No parser for the exp " e))))
+            (recur))
+          (do
+            (a/close! to-chan)
+            (log/info "Exiting from the parse-exp service"))))
+      (catch Throwable e
+        (log/warn "Failure in the parse-exp service " e)
+        (log/warn "Restarting parse-exp service after failure")
+        (parse-exp-service etl from-chan to-chan)))))
 
 ;; Helper function to perform RCP call .net style.
 ;; Blocks caller while waiting for the response. Returns non-modified server

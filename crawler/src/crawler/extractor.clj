@@ -1,5 +1,8 @@
 (ns crawler.extractor
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [clojure.data.json :as js]
+            [cdl.core :as cdl]
+            [clojure.spec.alpha :as s])
   (:import (org.jsoup Jsoup)
            (org.jsoup.nodes Document)))
 
@@ -46,3 +49,16 @@
                  (hash-map :id (.attr cell "ID")
                            :context {:rand-num (.attr row "RANDNUM")}))
                (.select row "cell[ID]")))))))
+
+;; Receives json as string and returns clojure map conforming to the ::cdl.exp
+;; spec. Returns nil if there is no parser for this exp.
+;; Throws an exception if there was a parser but it returned something which was
+;; not conforming to the spec or if we failed to parse json.
+(defn extract-exp [input]
+  (let [json-exp (js/read-str input :key-fn keyword)]
+    (when (cdl/can-parse? json-exp)
+      (let [exp (cdl/json->exp json-exp)]
+        (if (s/valid? ::cdl/exp exp)
+          exp
+          (throw (ex-info "Parsed exp didn't conform to spec " exp
+                          (s/conform ::cdl/exp exp))))))))
