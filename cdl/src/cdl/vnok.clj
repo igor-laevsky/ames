@@ -39,9 +39,9 @@
               :rand-num (str (jp/at-path "$.context.rand-num" inp))}})
 
 ; Screening visit demographic data (DEMO)
-(s/def :vnok.DEMO/date ::c/date-time-str)
-(s/def :vnok.DEMO/agr-datetime ::c/date-time-str)
-(s/def :vnok.DEMO/birthday ::c/date-time-str)
+(s/def :vnok.DEMO/date ::c/date-time-str-or-nil)
+(s/def :vnok.DEMO/agr-datetime ::c/date-time-str-or-nil)
+(s/def :vnok.DEMO/birthday ::c/date-time-str-or-nil)
 (s/def :vnok.DEMO/age ::c/age)
 (s/def :vnok.DEMO/gender ::c/gender)
 (s/def :vnok.DEMO/race ::c/race)
@@ -69,15 +69,16 @@
              inp)
 
      :agr-datetime
-           (str
-             (jp/at-path
-               "$.
-               d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
-               inp)
-             " "
-             (jp/at-path
-               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
-               inp))
+           (string/trim
+             (str
+               (jp/at-path
+                 "$.
+                 d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
+                 inp)
+               " "
+               (jp/at-path
+                 "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
+                 inp)))
 
      :birthday
            (jp/at-path
@@ -85,10 +86,9 @@
              inp)
 
      :age
-           (Integer/parseInt
-             (jp/at-path
-               "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[1].ItemList[1].Value"
-               inp))
+           (jp/at-path
+             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[1].ItemList[1].Value"
+             inp)
 
      :gender
            (c/gender-decode
@@ -147,8 +147,8 @@
 
 ; V2-V10 Physical examination (PE.v2-v10)
 
-(s/def :vnok.PE.v1-v10/date ::c/date-time-str)
-(s/def :vnok.PE.v1-v10/examination-date ::c/date-time-str)
+(s/def :vnok.PE.v1-v10/date ::c/date-time-str-or-nil)
+(s/def :vnok.PE.v1-v10/examination-date ::c/date-time-str-or-nil)
 (s/def :vnok.PE.v1-v10/is-done boolean?)
 (s/def :vnok.PE.v1-v10/not-done-reason string?)
 (s/def :vnok.PE.v1-v10/has-deviations ::c/yes-no)
@@ -178,14 +178,15 @@
              "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
              inp)
      :examination-date
-           (str
-             (jp/at-path
-               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
-               inp)
-             " "
-             (jp/at-path
-               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
-               inp))
+           (string/trim
+             (str
+               (jp/at-path
+                 "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
+                 inp)
+               " "
+               (jp/at-path
+                 "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
+                 inp)))
      :is-done
            (string/blank?
              (jp/at-path
@@ -212,8 +213,8 @@
      }))
 
 ; Unplanned visit Reason (UV)
-(s/def :vnok.UV/date ::c/date-time-str)
-(def uv-reason-decode {"1" "НЯ/СНЯ", "2" "Другое"})
+(s/def :vnok.UV/date ::c/date-time-str-or-nil)
+(def uv-reason-decode {"1" "НЯ/СНЯ", "2" "Другое", "" ""})
 (s/def :vnok.UV/reason (set (vals uv-reason-decode)))
 (s/def :vnok.UV/comment string?)
 

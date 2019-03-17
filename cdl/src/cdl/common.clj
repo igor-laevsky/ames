@@ -30,16 +30,19 @@
 (s/def ::non-empty-string (s/and string? (complement string/blank?)))
 
 (def gender-decode {"M" "Мужской"
-                    "F" "Женский"})
+                    "F" "Женский"
+                    "" ""})
 (s/def ::gender (set (vals gender-decode)))
 
 (def race-decode {"1" "Европеоидная"
                   "2" "Монголоидная"
                   "3" "Негроидная"
-                  "4" "Другое"})
+                  "4" "Другое"
+                  "" ""})
 (s/def ::race (set (vals race-decode)))
 
-(s/def ::age (s/int-in 0 200))
+; TODO: Can do better than this
+(s/def ::age string?)
 
 (def date-time-format
   (tf/formatter (t/time-zone-for-id "UTC")
@@ -74,11 +77,13 @@
     empty-date-str-gen))
 
 (def yes-no-decode {"Y" "Да"
-                    "N" "Нет"})
+                    "N" "Нет"
+                    "" ""})
 (s/def ::yes-no (set (vals yes-no-decode)))
 
 (def status-decode {"1" "Разрешилось"
-                    "2" "Продолжается"})
+                    "2" "Продолжается"
+                    "" ""})
 (s/def ::status (set (vals status-decode)))
 
 (def organ-system-decode {"1" "Общее состояние"
@@ -91,7 +96,8 @@
                           "8" "Сердечно-сосудистая система"
                           "9" "Пищеварительная система"
                           "10" "Мочевыделительная система"
-                          "11" "Состояния наружных половых органов"})
+                          "11" "Состояния наружных половых органов"
+                          "" ""})
 (s/def ::organ-system (set (vals organ-system-decode)))
 
 

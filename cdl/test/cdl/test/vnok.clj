@@ -30,7 +30,7 @@
                        :rand-num "R462"},
         :date         "2018-05-28",
         :group        "",
-        :age          78,
+        :age          "78",
         :race         "Европеоидная",
         :other        "",
         :birthday     "1939-10-06",
@@ -135,6 +135,27 @@
        :has-deviations   "Да",
        :verified         true}
       (read-exp-from-file "vnok/PE.v2-v10.json"))))
+
+(deftest vnok.PE.v2-v10-empty-test
+  (is
+    (=
+      {:patient          {:name     "01-012",
+                          :birthday "1953-06-14",
+                          :gender   "Мужской",
+                          :rand-num ""},
+       :date             "",
+       :group            "",
+       :type             "vnok/PE.v2-v10",
+       :not-done-reason  "",
+       :examination-date "",
+       :is-done          true,
+       :finished         false,
+       :visit            "vnok/se.V9",
+       :deviations       [{:is-important "", :organ-system "", :comment ""}],
+       :location         "01",
+       :has-deviations   "",
+       :verified         false}
+      (read-exp-from-file "vnok/PE.v2-v10-empty.json"))))
 
 (deftest vnok.UV-test
   (is
