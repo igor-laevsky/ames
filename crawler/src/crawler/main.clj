@@ -9,7 +9,7 @@
             [crawler.saver :as saver]
             [crawler.etl :as etl]))
 
-(def ^:const parallelism 10)
+(def ^:const parallelism 2)
 
 (def creds (read-string (slurp (io/reader (io/resource "creds.edn")))))
 
