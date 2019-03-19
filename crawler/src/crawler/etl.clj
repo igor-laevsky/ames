@@ -168,17 +168,18 @@
 
 ;; Requests server to continue current user session. Doesn't block.
 ;; Returns promise chanel with the network response.
-(defn keep-session [etl]
-  (net/get (:network etl) (keep-session-url etl)))
+(defn keep-session! [etl]
+  (net/get! (:network etl) (keep-session-url etl)))
 
 (defn start-keep-session-service [etl]
   (let [close-chan (a/chan)]
-    (a/go-loop []
-      (let [[_ res] (a/alts! [close-chan (a/timeout 500000)])]
-        (when-not (= res close-chan)
-          (log/info "Sending keep session request")
-          (a/<! (keep-session etl))
-          (recur))))
+    (a/thread
+      (loop []
+        (let [[_ res] (a/alts!! [close-chan (a/timeout 500000)])]
+          (when-not (= res close-chan)
+            (log/info "Sending keep session request")
+            (keep-session! etl)
+            (recur)))))
     close-chan))
 
 (defn stop-keep-session-service [service]

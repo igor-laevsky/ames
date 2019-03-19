@@ -85,6 +85,13 @@
   ([network url params]
    (async-request network url (merge params {:method :get}))))
 
+;; Same as 'get' but blocks caller thread. Needed to execute request immediately
+;; bypassing the thread pool queue.
+(defn get!
+  ([network url] (get! network url nil))
+  ([network url params]
+   (request network url (merge params {:method :get}))))
+
 ;; Performs an async http post request. 'params' are passed to the clj-http.
 ;; Returns a promise chanel.
 (defn post
