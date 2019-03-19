@@ -3,6 +3,7 @@
   :url "https://github.com/igor-laevsky/ames"
   :license {}
   :main ^:skip-aot crawler.main
+  :repl-options {:init-ns user}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/spec.alpha "0.2.176"]

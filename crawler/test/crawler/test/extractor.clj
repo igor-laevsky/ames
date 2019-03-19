@@ -1,7 +1,8 @@
 (ns crawler.test.extractor
   (:require [clojure.test :refer :all]
             [crawler.extractor :as p]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [orchestra.spec.test :as st]))
 
 (defn get-test-file [fname]
   (-> (str "parser/" fname)
@@ -61,9 +62,15 @@
            (take-last 6 exps)))))
 
 (deftest test-extract-exp
+  (st/unstrument)
   (is (nil? (p/extract-exp (get-test-file "DEMO-unparseable.json") {})))
   (is (p/extract-exp (get-test-file "DEMO.json") {}))
+  (is (try (p/extract-exp (get-test-file "DEMO-non-conforming.json") {})
+           false
+           (catch Throwable e
+             true)))
   (is (try (p/extract-exp (get-test-file "invalid json") {})
            false
            (catch Throwable e
-             true))))
+             true)))
+  (st/instrument))

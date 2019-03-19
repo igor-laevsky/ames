@@ -62,5 +62,6 @@
       (let [exp (cdl/json->exp json-exp)]
         (if (s/valid? ::cdl/exp exp)
           exp
-          (throw (ex-info "Parsed exp didn't conform to spec " exp
-                          (s/conform ::cdl/exp exp))))))))
+          (throw (ex-info "Parsed exp didn't conform to spec "
+                          {:spec-explain (s/explain-str ::cdl/exp exp)
+                           :exp exp})))))))

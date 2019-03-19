@@ -46,7 +46,7 @@
 
 (def date-time-format
   (tf/formatter (t/time-zone-for-id "UTC")
-                "yyyy-MM-dd hh:mm"
+                "yyyy-MM-dd HH:mm"
                 "yyyy-MM-dd"
                 "yyyy-MM"
                 "yyyy"))

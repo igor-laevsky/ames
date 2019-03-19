@@ -24,6 +24,8 @@
 
 (defn -main [& args]
   (let [system (component/start-system (create-system))]
-    (log/info "Parsing center 01")
-    (etl/parse-center! (:etl system) :num-parser-threads parallelism)))
-
+    (try
+      (log/info "Parsing center 01")
+      (etl/parse-center! (:etl system) :num-parser-threads parallelism)
+      (finally
+        (component/stop-system system)))))

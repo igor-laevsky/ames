@@ -1,11 +1,9 @@
 (ns cdl.test.vnok
   (:require [clojure.test :refer :all]
+            [clojure.spec.alpha :as s]
             [cdl.core :as c]
             [clojure.data.json :as js]
-            [clojure.java.io :as io]
-            [orchestra.spec.test :as st]))
-
-(st/instrument)
+            [clojure.java.io :as io]))
 
 (defn read-json-from-file [fname]
   (-> fname
@@ -174,3 +172,24 @@
        :location "01",
        :verified true}
       (read-exp-from-file "vnok/UV.json"))))
+
+;; Check that we can parse 24h based date
+(deftest parse-date-test
+  (is (s/valid? ::c/exp
+           {:patient {:name "01-005",
+                      :birthday "1940-09-06",
+                      :gender "Женский",
+                      :rand-num ""},
+            :date "2018-09-05",
+            :group "",
+            :age "77",
+            :race "Европеоидная",
+            :other "",
+            :birthday "1940-09-06",
+            :type "vnok/DEMO",
+            :finished true,
+            :visit "vnok/se.SCR",
+            :agr-datetime "2018-09-05 16:36",
+            :gender "Женский",
+            :location "01",
+            :verified true})))

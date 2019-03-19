@@ -9,8 +9,6 @@
             [crawler.saver :as saver]
             [cdl.core :as cdl]))
 
-(st/instrument)
-
 (defn read-exp-from-file [fname]
   (-> fname
       (io/resource)
