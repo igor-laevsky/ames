@@ -135,6 +135,9 @@
                   {:form-params args})
         (a/<!!))))
 
+(defn switch-center! [etl number]
+  (call-server-menu! etl (format "s%03d|%02d" number number)))
+
 ;; Login into application. Blocks caller thread while waiting for the response.
 ;; Returns true on success nil on failure.
 (defn login! [{{:keys [login password]} :params :as etl}]
