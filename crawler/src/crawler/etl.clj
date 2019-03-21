@@ -101,7 +101,7 @@
 ;; Spawns a go block which expects stream of parsed exp's and saves them using
 ;; current etl saver.
 (defn start-save-exp-service [etl from-chan]
-  (a/go
+  (a/thread
     (log/info "Starting save-exp service")
     (try
       (loop []
