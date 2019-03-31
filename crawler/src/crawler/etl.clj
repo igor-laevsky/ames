@@ -105,7 +105,7 @@
     (log/info "Starting save-exp service")
     (try
       (loop []
-        (if-some [e (a/<! from-chan)]
+        (if-some [e (a/<!! from-chan)]
           (do
             (log/info "Saving exp " (select-keys e [:patient :type :visit]))
             (try

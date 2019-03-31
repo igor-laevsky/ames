@@ -15,10 +15,9 @@
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [org.slf4j/slf4j-api "1.7.25"]
                  [org.clojure/tools.logging "0.3.1"]
-
                  [diehard "0.8.0"]
-
                  [org.jsoup/jsoup "1.11.3"]
+                 [cc.qbits/spandex "0.7.0-beta3"]
 
                  [ames/cdl "0.1.0"]]
   :profiles {:dev

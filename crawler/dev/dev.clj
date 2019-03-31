@@ -27,6 +27,7 @@
    [clj-time.core :as t]
    [clj-time.local :as l]
    [clj-http.util]
+   [qbits.spandex :as es]
 
    [crawler.network :as network]
    [crawler.extractor :as extractor]
@@ -49,7 +50,9 @@
   (component/system-map
     :network (network/make-network {:num-threads 10
                                     :rate 10})
-    :saver (saver/make-file-saver {:file-name "test/resources/saver/tmp.json"})
+    ;:saver (saver/make-file-saver {:file-name "test/resources/saver/tmp.json"})
+    :saver (saver/make-elastic-saver {:url "http://127.0.0.1:9200"
+                                      :index "test-index"})
     :etl (component/using
            (etl/make-login-etl creds)
            [:network :saver])))
