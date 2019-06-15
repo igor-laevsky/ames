@@ -1,0 +1,47 @@
+<configuration scan="true" scanPeriod="10 seconds">
+
+  <!-- Simple file output -->
+  <!--<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+    <!--&lt;!&ndash; encoder defaults to ch.qos.logback.classic.encoder.PatternLayoutEncoder &ndash;&gt;-->
+    <!--<encoder>-->
+      <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+    <!--</encoder>-->
+
+    <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+      <!--&lt;!&ndash; rollover daily &ndash;&gt;-->
+      <!--<fileNamePattern>logs/hello-world-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+      <!--<timeBasedFileNamingAndTriggeringPolicy-->
+          <!--class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">-->
+        <!--&lt;!&ndash; or whenever the file size reaches 64 MB &ndash;&gt;-->
+        <!--<maxFileSize>64 MB</maxFileSize>-->
+      <!--</timeBasedFileNamingAndTriggeringPolicy>-->
+    <!--</rollingPolicy>-->
+
+    <!--&lt;!&ndash; Safely log to the same file from multiple JVMs. Degrades performance! &ndash;&gt;-->
+    <!--<prudent>true</prudent>-->
+  <!--</appender>-->
+
+
+  <!-- Console output -->
+  <appender name="console-colors" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%date{MMM dd HH:mm:ss.SSS} [%logger{100}] [%thread] %highlight(%-5level) | %msg%n</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+  </appender>
+
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%date{MMM dd HH:mm:ss.SSS} [%logger{100}] [%thread] %-5level | %msg%n</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+  </appender>
+
+  <root level="ALL">
+    <appender-ref ref="console" />
+  </root>
+
+  <!-- To log pedestal internals, enable this and change ThresholdFilter to DEBUG -->
+  <logger name="io.pedestal" level="INFO" />
+  <logger name="org.eclipse.jetty" level="INFO" />
+</configuration>

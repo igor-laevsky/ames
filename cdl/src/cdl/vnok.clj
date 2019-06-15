@@ -20,7 +20,7 @@
 ; Refined common spec to be used in all of the vnok experiments.
 (s/def ::type exp-types)
 (s/def ::visit visit-types)
-(s/def ::location (set (map (partial format "%02d") (range 1 32))))
+(s/def ::location (set (map (partial format "%02d") (range 1 33))))
 (s/def ::vnok-common
   (s/merge ::c/exp-common
            (s/keys :req-un [::type ::visit ::location])))
