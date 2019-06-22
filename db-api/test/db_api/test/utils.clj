@@ -4,7 +4,8 @@
             [io.pedestal.http.route :as route]
             [com.stuartsierra.component :as component]
 
-            [db-api.main :as main]))
+            [db-api.main :as main]
+            [db-api.handlers :as handlers]))
 
 (defmacro with-system
   [[bound-var binding-expr] & body]
@@ -14,7 +15,7 @@
        (finally
          (component/stop ~bound-var)))))
 
-(def url-for (route/url-for-routes main/routes))
+(def url-for (route/url-for-routes handlers/routes))
 
 (defn get-service-fn [system]
   (get-in system [:pedestal :server ::http/service-fn]))
