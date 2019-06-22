@@ -4,29 +4,23 @@
             [com.stuartsierra.component :as component]))
 
 (defn respond-hello [request]
-  {:status 200 :body "Hello, this world!"})
+  {:status 200 :body "Hello world!"})
 
 (def routes
   (route/expand-routes
     #{["/greet" :get respond-hello :route-name :greet]}))
 
-(def dev-service-map
-  (->
-    {:env                     :dev
-     ::http/join?             false
-     ::http/routes            routes
-     ::http/resource-path     "/public"
-     ::http/type              :jetty
-     ::http/port              8080
-     ::http/container-options {:h2c? true
-                               :h2?  false
-                               ;:keystore "test/hp/keystore.jks"
-                               ;:key-password "password"
-                               ;:ssl-port 8443
-                               :ssl? false
-                               }}
-    (http/default-interceptors)
-    (http/dev-interceptors)))
+(def common-service-map
+  {::http/routes            routes
+   ::http/resource-path     "/public"
+   ::http/type              :jetty
+   ::http/port              8080
+   ::http/container-options {:h2c? true
+                             :h2?  false
+                             ;:keystore "test/hp/keystore.jks"
+                             ;:key-password "password"
+                             ;:ssl-port 8443
+                             :ssl? false}})
 
 (defrecord Pedestal [service-map server]
   component/Lifecycle
