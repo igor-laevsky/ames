@@ -18,3 +18,15 @@
 
 (defn make-es [params]
   (map->ElasticSearch {:params params}))
+
+(defn- index [es] (get-in es [:params :index]))
+
+;; Fulltext search. 'request' should be a string representing "query string query"
+;; in elasticsearch terms.
+(defn search [es request]
+  (->
+    (spandex/request
+      (:es-client es)
+      {:method :get
+       :url    (str (index es) "/_search?q=" request)})
+    :body))

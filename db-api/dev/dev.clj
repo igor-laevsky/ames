@@ -36,7 +36,7 @@
 
 (defn dev-system []
   (component/system-map
-    :es (es/make-es {:host "http://127.0.0.1:9200"})
+    :es (es/make-es {:host "http://127.0.0.1:9200" :index "vnok"})
     :pedestal (component/using
                 (p/make-pedestal dev-service-map)
                 [:es])))
@@ -50,7 +50,7 @@
 
 (def service-fn (get-service-fn system))
 
-(response-for service-fn :get (url-for :search))
+;(response-for service-fn :get (url-for :search))
 
 ;(def resp (spandex/request (get-in system [:es :es-client])
 ;            {:method :get
