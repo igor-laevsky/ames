@@ -13,12 +13,13 @@
     [io.pedestal.http :as http]
     [io.pedestal.test :refer [response-for]]
     [io.pedestal.http.route :as route]
-    [qbits.spandex :as es]
+    [qbits.spandex :as spandex]
     [orchestra.spec.test :as st]
 
     [cdl.core :as cdl]
 
     [db-api.main :as main]
+    [db-api.es :as es]
     [db-api.handlers :as handlers]
     [db-api.pedestal :as p]))
 
@@ -35,12 +36,23 @@
 
 (defn dev-system []
   (component/system-map
-    :pedestal (p/make-pedestal dev-service-map)))
+    :es (es/make-es {:host "http://127.0.0.1:9200"})
+    :pedestal (component/using
+                (p/make-pedestal dev-service-map)
+                [:es])))
 
 (set-init (fn [_] (dev-system)))
 
-;(def s (es/client {:hosts ["http://127.0.0.1:9200"]}))
-;(def resp (es/request s
+(def url-for (route/url-for-routes handlers/routes))
+
+(defn get-service-fn [system]
+  (get-in system [:pedestal :server ::http/service-fn]))
+
+(def service-fn (get-service-fn system))
+
+(response-for service-fn :get (url-for :search))
+
+;(def resp (spandex/request (get-in system [:es :es-client])
 ;            {:method :get
 ;             :url "vnok/_search?q=01-002&size=1000&from=10"}))
 ;(count (get-in resp [:body :hits :hits]))

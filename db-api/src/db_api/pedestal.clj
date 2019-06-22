@@ -23,7 +23,7 @@
   (stop [this]
     (when server
       (http/stop server))
-    (assoc this :pedestal-server nil)))
+    (assoc this :server nil)))
 
 (defn make-pedestal [service-map]
   (map->Pedestal {:service-map service-map}))
