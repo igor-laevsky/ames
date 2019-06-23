@@ -1,6 +1,7 @@
 (ns db-api.es
   (:require
     [clojure.tools.logging :as log]
+    [clojure.data.json :as json]
     [com.stuartsierra.component :as component]
     [qbits.spandex :as spandex]))
 
@@ -19,13 +20,39 @@
 (defn make-es [params]
   (map->ElasticSearch {:params params}))
 
-(defn- index [es] (get-in es [:params :index]))
-
 ;; Fulltext search. 'request' should be a string representing "query string query"
 ;; in elasticsearch terms.
-(defn search [es query from size]
+(defn search [{:keys [params es-client]} query from size]
   (->
-    (spandex/request (:es-client es)
+    (spandex/request es-client
       {:method :get
-       :url    (str (index es) "/_search?q=" query "&from=" from "&size=" size)})
+       :url    (str (:index params) "/_search?q=" query "&from=" from "&size=" size)})
+    :body))
+
+;; Counts exps groupped by the location and verified status.
+(defn list-locations [{:keys [params es-client] :as es}]
+  (->
+    (spandex/request es-client
+                     {:method :get
+                      :url    (str (:index params) "/_search")
+                      :body   (spandex/->Raw
+                                "{
+                                  \"size\": 0,
+                                  \"aggs\": {
+                                    \"locations\": {
+                                      \"terms\": {
+                                        \"field\": \"location\",
+                                        \"size\": 10000
+                                      },
+                                      \"aggs\": {
+                                        \"verified\": {
+                                          \"terms\": {
+                                            \"field\": \"verified\",
+                                            \"size\": 10000
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }")})
     :body))

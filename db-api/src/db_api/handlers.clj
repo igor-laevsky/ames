@@ -22,10 +22,28 @@
       (ring-resp/response (:hits (es/search es query from size)))
       (throw (ex-info "Expected query string as an argument" {:request req})))))
 
+;; List all avaliable locations.
+;; Returns response in the form of:
+;;   [{:name "13", :total <int>, :verified <int>}, ...]
+;;
+(defn get-locations [req]
+  (ring-resp/response "TODO"))
+
+;; List patients for center
+(defn get-patients [req]
+  (ring-resp/response "TODO"))
+
+;; List exps for patient in a center sorted by date
+(defn get-exps [req]
+  (ring-resp/response "TODO"))
+
 (def common-interceptors [http/json-body])
 
 (def routes
   (route/expand-routes
     #{["/search"
        :get (conj common-interceptors (c/using-component :es) search-handler)
-       :route-name :search]}))
+       :route-name :search]
+      ["/locations"
+       :get (conj common-interceptors (c/using-component :es) get-locations)
+       :route-name :locations]}))
