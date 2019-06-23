@@ -23,10 +23,9 @@
 
 ;; Fulltext search. 'request' should be a string representing "query string query"
 ;; in elasticsearch terms.
-(defn search [es request]
+(defn search [es query from size]
   (->
-    (spandex/request
-      (:es-client es)
+    (spandex/request (:es-client es)
       {:method :get
-       :url    (str (index es) "/_search?q=" request)})
+       :url    (str (index es) "/_search?q=" query "&from=" from "&size=" size)})
     :body))

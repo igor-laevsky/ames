@@ -48,11 +48,6 @@
 (defn get-service-fn [system]
   (get-in system [:pedestal :server ::http/service-fn]))
 
-(def service-fn (get-service-fn system))
+;(response-for (get-service-fn system) :get (url-for :search :query-params {:q "01-002" :from "9" :size "2"}))
 
-;(response-for service-fn :get (url-for :search))
-
-;(def resp (spandex/request (get-in system [:es :es-client])
-;            {:method :get
-;             :url "vnok/_search?q=01-002&size=1000&from=10"}))
-;(count (get-in resp [:body :hits :hits]))
+;(def resp (es/search (:es system) "01-002&size=1000&from=9"))
