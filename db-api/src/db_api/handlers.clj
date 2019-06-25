@@ -36,13 +36,18 @@
                                          :verified :buckets
                                          (filter (fn [e] (= (:key e) 1)))
                                          (first)
-                                         :doc_count))))))
+                                         :doc_count
+                                         (fnil int 0)))))))
 
-;; List patients for center
+;; List patients for a given locations.
+;; Expects "&loc=..." in the query-params.
+;; Returns results in the form of
+;;   [{:name "01-002 <randnum>", :total <int>, :verified <int>}, ...]
+;;
 (defn get-patients [req]
   (ring-resp/response "TODO"))
 
-;; List exps for patient in a center sorted by date
+;; List exps for a given patient in a given center sorted by date.
 (defn get-exps [req]
   (ring-resp/response "TODO"))
 

@@ -56,3 +56,41 @@
                                   }
                                 }")})
     :body))
+
+;; Filters exps from the given location and groups them by patient.
+(defn list-patients [{:keys [params es-client] :as es} loc]
+  (->
+    (spandex/request es-client
+                     {:method :get
+                      :url    (str (:index params) "/_search")
+                      :body   (->
+                                "{
+                                    \"size\": 0,
+                                    \"query\": {
+                                      \"match\": {
+                                        \"location\": \"%s\"
+                                      }
+                                    },
+                                    \"aggs\" : {
+                                        \"patients\" : {
+                                            \"terms\" : {
+                                              \"script\" : {
+                                                \"source\": \"doc['patient.name'].value + doc['patient.rand-num']\",
+                                                \"lang\": \"painless\"
+                                              },
+                                              \"size\": 10000
+                                            },
+                                            \"aggs\": {
+                                              \"verified\": {
+                                              \"terms\": {
+                                                \"field\": \"verified\",
+                                                \"size\": 10000
+                                              }
+                                              }
+                                            }
+                                        }
+                                    }
+                                }"
+                                (format loc)
+                                spandex/->Raw)})
+    :body))
