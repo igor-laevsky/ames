@@ -49,6 +49,4 @@
 (defn get-service-fn [system]
   (get-in system [:pedestal :server ::http/service-fn]))
 
-;(response-for (get-service-fn system) :get (url-for :search :query-params {:q "01-002" :from "9" :size "2"}))
-
-;(def resp (es/search (:es system) "01-002&size=1000&from=9"))
+(response-for (get-service-fn system) :get (url-for :locations))

@@ -27,8 +27,8 @@
                 [:es])))
 
 (deftest test-search
-  (with-system [suv (create-test-system)]
-    (let [service-fn (get-service-fn suv)
+  (with-system [sys (create-test-system)]
+    (let [service-fn (get-service-fn sys)
           make-request (fn [params] (response-for service-fn
                                                   :get
                                                   (url-for :search
@@ -48,3 +48,15 @@
         (is (= 200 status))
         (is (= 11 (:total parsed-body)))
         (is (= 1 (count (:hits parsed-body))))))))
+
+(deftest test-locations
+  (with-system [sys (create-test-system)]
+    (let [{:keys [status body]} (response-for (get-service-fn sys)
+                                              :get
+                                              (url-for :locations))
+          parsed-body (json/read-str body :key-fn keyword)]
+      (is (= 200 status))
+      (is (= "03" (:name (first (take-last 2 parsed-body)))))
+      (is (= 316 (-> parsed-body first :total)))
+      (is (= 308 (-> parsed-body first :verified)))
+      (is (= 134 (-> parsed-body second :verified))))))

@@ -27,7 +27,16 @@
 ;;   [{:name "13", :total <int>, :verified <int>}, ...]
 ;;
 (defn get-locations [req]
-  (ring-resp/response "TODO"))
+  (ring-resp/response
+    (->> (es/list-locations (c/use-component req :es))
+         :aggregations :locations :buckets
+         (map #(array-map :name (:key %)
+                          :total (:doc_count %)
+                          :verified (->> %
+                                         :verified :buckets
+                                         (filter (fn [e] (= (:key e) 1)))
+                                         (first)
+                                         :doc_count))))))
 
 ;; List patients for center
 (defn get-patients [req]
