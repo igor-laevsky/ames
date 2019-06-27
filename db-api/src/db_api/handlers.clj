@@ -20,7 +20,9 @@
         from (get-in req [:query-params :from] "0")
         size (get-in req [:query-params :size] "1000")]
     (if query
-      (ring-resp/response (:hits (es/search es query from size)))
+      (-> (es/search es query from size)
+          :hits
+          (ring-resp/response))
       (throw (ex-info "Expected query string as an argument" {:request req})))))
 
 ;; Helper method for the get-locations and get-patients.
