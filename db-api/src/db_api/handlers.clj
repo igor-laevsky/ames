@@ -1,5 +1,6 @@
 (ns db-api.handlers
-  (:require [io.pedestal.interceptor.helpers :as helpers]
+  (:require [clojure.tools.logging :as log]
+            [io.pedestal.interceptor.helpers :as helpers]
             [io.pedestal.http :as http]
             [io.pedestal.http.route :as route]
             [ring.util.response :as ring-resp]
@@ -22,22 +23,30 @@
       (ring-resp/response (:hits (es/search es query from size)))
       (throw (ex-info "Expected query string as an argument" {:request req})))))
 
+;; Helper method for the get-locations and get-patients.
+;; Receives aggregation results from elasticsearch and outputs them in a format
+;; expected by the api caller.
+;;
+(defn- es-to-list [inp key]
+  (->> inp
+       :aggregations key :buckets
+       (map #(array-map :name (:key %)
+                        :total (:doc_count %)
+                        :verified (->> %
+                                       :verified :buckets
+                                       (filter (fn [e] (= (:key e) 1)))
+                                       (first)
+                                       :doc_count
+                                       ((fnil int 0)))))))
+
 ;; List all avaliable locations.
 ;; Returns response in the form of:
 ;;   [{:name "13", :total <int>, :verified <int>}, ...]
 ;;
 (defn get-locations [req]
-  (ring-resp/response
-    (->> (es/list-locations (c/use-component req :es))
-         :aggregations :locations :buckets
-         (map #(array-map :name (:key %)
-                          :total (:doc_count %)
-                          :verified (->> %
-                                         :verified :buckets
-                                         (filter (fn [e] (= (:key e) 1)))
-                                         (first)
-                                         :doc_count
-                                         (fnil int 0)))))))
+  (-> (es/list-locations (c/use-component req :es))
+      (es-to-list :locations)
+      (ring-resp/response)))
 
 ;; List patients for a given locations.
 ;; Expects "&loc=..." in the query-params.
@@ -45,7 +54,11 @@
 ;;   [{:name "01-002 <randnum>", :total <int>, :verified <int>}, ...]
 ;;
 (defn get-patients [req]
-  (ring-resp/response "TODO"))
+  (if-let [loc (get-in req [:query-params :loc])]
+    (-> (es/list-patients (c/use-component req :es) loc)
+        (es-to-list :patients)
+        (ring-resp/response))
+    (throw (ex-info "Expected location as an argument" req))))
 
 ;; List exps for a given patient in a given center sorted by date.
 (defn get-exps [req]
@@ -60,4 +73,7 @@
        :route-name :search]
       ["/locations"
        :get (conj common-interceptors (c/using-component :es) get-locations)
-       :route-name :locations]}))
+       :route-name :locations]
+      ["/patients"
+       :get (conj common-interceptors (c/using-component :es) get-patients)
+       :route-name :patients]}))

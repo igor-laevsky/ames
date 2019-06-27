@@ -49,4 +49,4 @@
 (defn get-service-fn [system]
   (get-in system [:pedestal :server ::http/service-fn]))
 
-;(response-for (get-service-fn system) :get (url-for :locations))
+;(response-for (get-service-fn system) :get (url-for :patients :query-params {:loc "03"}))

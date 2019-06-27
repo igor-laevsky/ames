@@ -60,3 +60,15 @@
       (is (= 316 (-> parsed-body first :total)))
       (is (= 308 (-> parsed-body first :verified)))
       (is (= 134 (-> parsed-body second :verified))))))
+
+(deftest test-patients
+  (with-system [sys (create-test-system)]
+    (let [{:keys [status body]} (response-for (get-service-fn sys)
+                                              :get
+                                              (url-for :patients
+                                                       :query-params {:loc "03"}))
+          parsed-body (json/read-str body :key-fn keyword)]
+      (is (= 200 status))
+      (is (= "03-001[R008]" (-> parsed-body first :name)))
+      (is (= 11 (-> parsed-body second :total)))
+      (is (= 0 (-> parsed-body second :verified))))))
