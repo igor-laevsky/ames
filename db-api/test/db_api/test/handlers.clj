@@ -74,3 +74,16 @@
       (is (= nil (-> parsed-body last :rand-num)))
       (is (= 11 (-> parsed-body second :total)))
       (is (= 0 (-> parsed-body second :verified))))))
+
+(deftest test-exps
+  (with-system [sys (create-test-system)]
+    (let [{:keys [status body]} (response-for (get-service-fn sys)
+                                              :get
+                                              (url-for :exps
+                                                       :query-params {:name "01-003"}))
+          parsed-body (json/read-str body :key-fn keyword)]
+      (is (= 200 status))
+      (is (every? #(= (get-in % [:patient :name]) "01-003") parsed-body))
+      (is (every? #(= (:location %) "01") parsed-body))
+      (is (= "vnok/PE.v2-v10" (-> parsed-body first :type)))
+      (is (= "vnok/DEMO" (-> parsed-body last :type))))))

@@ -73,8 +73,20 @@
     (throw (ex-info "Expected location as an argument" req))))
 
 ;; List exps for a given patient in a given center sorted by date.
+;; Expects patient name in the query-params. From and size arguments are optional.
+;; Returns list of exps.
+;;
 (defn get-exps [req]
-  (ring-resp/response "TODO"))
+  (let [es (c/use-component req :es)
+        name (get-in req [:query-params :name])
+        from (get-in req [:query-params :from] 0)
+        size (get-in req [:query-params :size] 1000)]
+    (if name
+      (->> (es/list-exps es name from size)
+           :hits :hits ; really, nested in a two equal keys
+           (map :_source)
+           (ring-resp/response))
+      (throw (ex-info "Expected name as an argument" req)))))
 
 (def common-interceptors [http/json-body])
 
@@ -88,4 +100,7 @@
        :route-name :locations]
       ["/patients"
        :get (conj common-interceptors (c/using-component :es) get-patients)
-       :route-name :patients]}))
+       :route-name :patients]
+      ["/exps"
+       :get (conj common-interceptors (c/using-component :es) get-exps)
+       :route-name :exps]}))

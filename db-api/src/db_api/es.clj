@@ -22,6 +22,7 @@
 
 ;; Fulltext search. 'request' should be a string representing "query string query"
 ;; in elasticsearch terms.
+;;
 (defn search [{:keys [params es-client]} query from size]
   (->
     (spandex/request es-client
@@ -30,6 +31,7 @@
     :body))
 
 ;; Counts exps groupped by the location and verified status.
+;;
 (defn list-locations [{:keys [params es-client] :as es}]
   (->
     (spandex/request es-client
@@ -58,6 +60,7 @@
     :body))
 
 ;; Filters exps from the given location and groups them by patient.
+;;
 (defn list-patients [{:keys [params es-client] :as es} loc]
   (->
     (spandex/request es-client
@@ -94,3 +97,8 @@
                                 (format loc)
                                 spandex/->Raw)})
     :body))
+
+;; List all exps for a given patient.
+;;
+(defn list-exps [{:keys [params es-client] :as es} name from size]
+  (search es (str "patient.name:" name) from size))
