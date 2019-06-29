@@ -69,6 +69,8 @@
                                                        :query-params {:loc "03"}))
           parsed-body (json/read-str body :key-fn keyword)]
       (is (= 200 status))
-      (is (= "03-001[R008]" (-> parsed-body first :name)))
+      (is (= "03-001" (-> parsed-body first :name)))
+      (is (= "R008" (-> parsed-body first :rand-num)))
+      (is (= nil (-> parsed-body last :rand-num)))
       (is (= 11 (-> parsed-body second :total)))
       (is (= 0 (-> parsed-body second :verified))))))

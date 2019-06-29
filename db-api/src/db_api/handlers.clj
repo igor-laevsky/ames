@@ -50,15 +50,25 @@
       (es-to-list :locations)
       (ring-resp/response)))
 
+;; Helper function for the list-patients. Expands patient names into name and
+;; rand-num. I.e transforms {:name "<name> <rand-num" ...} into
+;; {:name "<name>" :rand-num "<rand-num>" ...}
+;;
+(defn- expand-names [inp]
+  (map #(let [s (-> (:name %) (clojure.string/split #" "))
+              [name rand-num] (filter (complement empty?) s)]
+          (merge % {:name name :rand-num rand-num})) inp))
+
 ;; List patients for a given locations.
 ;; Expects "&loc=..." in the query-params.
 ;; Returns results in the form of
-;;   [{:name "01-002 <randnum>", :total <int>, :verified <int>}, ...]
+;;   [{:name "01-002", :rand-num "R001", :total <int>, :verified <int>}, ...]
 ;;
 (defn get-patients [req]
   (if-let [loc (get-in req [:query-params :loc])]
     (-> (es/list-patients (c/use-component req :es) loc)
         (es-to-list :patients)
+        (expand-names)
         (ring-resp/response))
     (throw (ex-info "Expected location as an argument" req))))
 

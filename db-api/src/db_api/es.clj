@@ -75,7 +75,7 @@
                                         \"patients\" : {
                                             \"terms\" : {
                                               \"script\" : {
-                                                \"source\": \"doc['patient.name'].value + doc['patient.rand-num']\",
+                                                \"source\": \"doc['patient.name'].value + ' ' + doc['patient.rand-num'].value\",
                                                 \"lang\": \"painless\"
                                               },
                                               \"size\": 10000
