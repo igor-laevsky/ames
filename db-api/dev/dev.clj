@@ -48,3 +48,4 @@
 
 (defn get-service-fn [system]
   (get-in system [:pedestal :server ::http/service-fn]))
+
