@@ -2,10 +2,12 @@
   :description ""
   :url "https://github.com/igor-laevsky/ames"
   :license {}
-  :main ^:skip-aot db-api.main
+  :main db-api.main
+  :aot :all
   :repl-options {:init-ns user}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/data.json "0.2.6"]
+                 [com.stuartsierra/component "0.4.0"]
 
                  ; Logging
                  [ch.qos.logback/logback-classic "1.2.3"]

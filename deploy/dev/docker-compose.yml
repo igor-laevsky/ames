@@ -1,8 +1,9 @@
-version: '3'
+version: '3.7'
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.7.0
     container_name: elasticsearch
+    hostname: elasticsearch
     environment:
       - cluster.name=dev-es-cluster
       - bootstrap.memory_lock=true
@@ -24,6 +25,20 @@ services:
       - 5601:5601
     networks:
       - dev-net
+  db-api:
+    image: clojure:lein-2.8.3
+    ports:
+      - 80:8080
+    networks:
+      - dev-net
+    entrypoint:
+      - java
+      - -jar
+      - /app/db-api/target/db-api-0.1.0-standalone.jar
+    volumes:
+      - type: bind
+        source: ../../
+        target: /app
 
 volumes:
   esdata:

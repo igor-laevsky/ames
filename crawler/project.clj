@@ -2,11 +2,13 @@
   :description ""
   :url "https://github.com/igor-laevsky/ames"
   :license {}
-  :main ^:skip-aot crawler.main
+  :main crawler.main
+  :aot :all
   :repl-options {:init-ns user}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/spec.alpha "0.2.176"]
+                 [org.clojure/test.check "0.10.0-alpha3"]
                  [org.clojure/core.async "0.4.490"]
                  [clj-time "0.15.0"]
                  [clj-http "3.9.1"]

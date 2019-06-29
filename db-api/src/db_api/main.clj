@@ -1,4 +1,5 @@
 (ns db-api.main
+  (:gen-class)
   (:require [clojure.tools.logging :as log]
             [io.pedestal.http :as http]
             [com.stuartsierra.component :as component]
@@ -20,20 +21,20 @@
                              :ssl? false}})
 
 (def prod-service-map
-  (merge common-service-map {:env         :prod
-                             ::http/join? false}))
+  (-> common-service-map
+      (merge {:env         :prod
+              ::http/host  "0.0.0.0"
+              ::http/port  8080
+              ::http/join? false})))
 
 (def prod-system
   (component/system-map
-    :es (es/make-es {:host "http://localhost:9200" :index "vnok"})
+    :es (es/make-es {:host "http://elasticsearch:9200" :index "vnok"})
     :pedestal (component/using
                 (c/make-pedestal prod-service-map)
                 [:es])))
 
 (defn -main []
-  (log/trace (::http/join prod-system))
   (let [system (component/start prod-system)]
-    (.addShutdownHook (Runtime/getRuntime) (Thread. #(do
-                                                       (log/trace "Shutting down")
-                                                       (component/stop system))))
+    (.addShutdownHook (Runtime/getRuntime) (Thread. #(do (component/stop system))))
     (.join (get-in system [:pedestal :server ::http/server]))))
