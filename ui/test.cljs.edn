@@ -1,0 +1,9 @@
+^{
+  :open-url "http://localhost:9500/test.html"
+  :watch-dirs ["src" "test"]
+  
+  ;; uncomment to launch tests in a headless environment
+  ;; you will have to figure out the path to chrome on your system
+  :launch-js ["chromium" "--headless" "--disable-gpu" "--repl" :open-url]
+  }
+{:main ui.test.main}
