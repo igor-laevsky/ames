@@ -10,7 +10,6 @@
             "fig:repl" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]
             "fig:min" ["run" "-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]
             "fig:test" ["run" "-m" "figwheel.main" "-co" "test.cljs.edn" "-m" "ui.test.main"]}
-  :source-paths ["src"]
   :profiles
   {:dev
    {:dependencies [[com.bhauman/figwheel-main "0.2.0"]]
