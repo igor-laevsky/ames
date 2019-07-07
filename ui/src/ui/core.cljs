@@ -3,7 +3,7 @@
             [re-frame.core :as re-frame]))
 
 (defn example-view []
-  [:h1 "Example wold !"])
+  [:h1 "Example  !"])
 
 (defn mount []
   (reagent/render [example-view] (.getElementById js/document "app")))

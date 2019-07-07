@@ -12,6 +12,7 @@
             "fig:test" ["run" "-m" "figwheel.main" "-co" "test.cljs.edn" "-m" "ui.test.main"]}
   :profiles
   {:dev
-   {:dependencies [[com.bhauman/figwheel-main "0.2.0"]]
+   {:dependencies [[com.bhauman/figwheel-main "0.2.0"]
+                   [binaryage/devtools "0.9.10"]]
     :resource-paths ["target"]
     :clean-targets ^{:protect false} ["target"]}})
