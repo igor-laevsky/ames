@@ -5,13 +5,16 @@
 
 (def ^:private routes
   ["/" {"" :home
-        "test/" :test
+        "test" :test
         ["test2/" :id] :test2}])
+
+; TODO: Infer from 'route'
+(def route-ids #{:home :test :test2})
 
 (def ^:private pushy-router
   (let [dispatch #(re-frame/dispatch
                     [:set-active-page {:page (:handler %)
-                                       :params {:route-params %}}])
+                                       :params (:route-params %)}])
         match #(bidi/match-route routes %)]
     (pushy/pushy dispatch match)))
 
