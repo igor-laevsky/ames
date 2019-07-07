@@ -1,5 +1,6 @@
 ^{:css-dirs ["resources/public/css"]
   :watch-dirs ["src"]
-  :open-url false}
+  :open-url false
+  :ring-handler ui.app-server/handler}
 {:main ui.core
  :preloads [devtools.preload]}
