@@ -7,6 +7,7 @@
 
 (re-frame/reg-event-db
   :initialize-db
+
   [db/validate-db]
   (fn-traced [db _] db/default-db))
 

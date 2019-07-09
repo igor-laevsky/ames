@@ -18,6 +18,7 @@
    {:dependencies [[com.bhauman/figwheel-main "0.2.0"]
                    [binaryage/devtools "0.9.10"]
                    [day8.re-frame/re-frame-10x "0.4.1"]
-                   [day8.re-frame/tracing "0.5.1"]]
+                   [day8.re-frame/tracing "0.5.1"]
+                   [day8.re-frame/test "0.1.5"]]
     :resource-paths ["target"]
     :clean-targets ^{:protect false} ["target"]}})
