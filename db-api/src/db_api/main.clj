@@ -13,6 +13,7 @@
    ::http/resource-path     "/public"
    ::http/type              :jetty
    ::http/port              8080
+   ::http/allowed-origins (constantly true)
    ::http/container-options {:h2c? true
                              :h2?  false
                              ;:keystore "test/hp/keystore.jks"

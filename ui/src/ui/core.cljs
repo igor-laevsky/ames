@@ -25,6 +25,8 @@
       :test [test-view]
       :test2 [test2-view])))
 
+(enable-console-print!)
+
 (defn mount []
   (reagent/render [main-app] (.getElementById js/document "app")))
 
@@ -34,6 +36,5 @@
   (mount))
 
 (defn ^:after-load re-render []
-  (enable-console-print!)
   (re-frame/clear-subscription-cache!)
   (mount))

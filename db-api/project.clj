@@ -3,7 +3,6 @@
   :url "https://github.com/igor-laevsky/ames"
   :license {}
   :main db-api.main
-  :aot :all
   :repl-options {:init-ns user}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/data.json "0.2.6"]
@@ -30,5 +29,8 @@
                              [com.stuartsierra/component.repl "0.2.0"]]
               :source-paths ["dev"]
               :resource-paths ["test/resources"]}
-             :test [:dev {:resource-paths ["test/resources/logging"]}]}
+
+             :test [:dev {:resource-paths ["test/resources/logging"]}]
+
+             :uberjar {:aot :all}}
 )
