@@ -7,9 +7,8 @@
             [ui.common.utils :as utils]))
 
 (def ^:private routes
-  ["/" {"" :home
-        "test" :test
-        ["test2/" :id] :test2}])
+  ["/" [["" :home]
+        [true :not-found]]])
 
 (s/def ::active-page #{:home :test :test2 :not-found})
 
