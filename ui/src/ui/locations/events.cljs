@@ -9,25 +9,26 @@
             [ui.locations.db :as db]))
 
 (re-frame/reg-event-fx
-  :get-locations
+  ::get-locations
   [db/validate-db]
   (fn-traced [{:keys [db]} [_ {:keys [page params]}]]
     {:http-xhrio {:method          :get
                   :uri             (cfg/endpoint "locations")
                   :response-format (ajax/json-response-format {:keywords? true})
-                  :on-success      [:get-locations-success]
-                  :on-failure      [:api-request-error :get-locations]}}))
+                  :on-success      [::get-locations-success]
+                  :on-failure      [::api-request-error :get-locations]}}))
 
 (re-frame/reg-event-db
-  :get-locations-success
+  ::get-locations-success
   [db/validate-db]
   (fn-traced [db [_ result]]
     (assoc db ::db/locations result)))
 
 (re-frame/reg-event-fx
-  :api-request-error
+  ::api-request-error
   [db/validate-db]
   (fn-traced [cofx [_ reason result]]
     (pprint (str "Failed network request" reason))
     (pprint result)
+    (js/alert "Api request error")
     {}))
