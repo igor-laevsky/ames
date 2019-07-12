@@ -4,26 +4,17 @@
 
             [ui.router :as router]
             [ui.events :as events]
-            [ui.subs :as subs]))
+            [ui.subs :as subs]
 
-(defn home-view []
-  [:h1 [:a {:href (router/url-for :test)} "Home"]])
-
-(defn test-view []
-  [:h1 [:a {:href (router/url-for :test2 :id 123)} "Test"]])
-
-(defn test2-view []
-  [:h1 [:a {:href (router/url-for :home)} "Test 2"]])
-
-(defn error-view []
-  [:h1 "Error"])
+            [ui.locations.db]
+            [ui.locations.events]
+            [ui.locations.subs]
+            [ui.locations.views]))
 
 (defn main-app []
   (let [active-page @(re-frame/subscribe [:active-page])]
     (case active-page
-      :home [home-view]
-      :test [test-view]
-      :test2 [test2-view])))
+      :home [ui.locations.views/main])))
 
 (enable-console-print!)
 
