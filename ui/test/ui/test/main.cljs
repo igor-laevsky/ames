@@ -1,5 +1,5 @@
 (ns ui.test.main
-  (:require [ui.test.example]
+  (:require [ui.test.locations]
             [figwheel.main.testing :refer [run-tests-async]]))
 
 (defn -main [& args]
