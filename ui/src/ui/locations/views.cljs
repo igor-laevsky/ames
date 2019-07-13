@@ -4,6 +4,18 @@
 
             [ui.locations.subs :as subs]))
 
+(defn location-view [location]
+  ^{:key (:name location)}
+  [:div.location.card.shadow-sm.m-2 {:style {:width "10rem"}}
+   [:div.card-body
+    [:h5.card-title.font-weight-bold "Центр " (:name location)]
+    [:p.card-text
+     "Проверено"
+     [:br]
+     [:span.text-success.font-weight-bold (:verified location)]
+     " из "
+     [:span.text-danger.font-weight-bold (:total location)]]]])
+
 (defn main []
   (let [locations @(re-frame/subscribe [::subs/locations])]
-    [:h1 "Num locations is " (count locations)]))
+    [:div.row (for [loc locations] (location-view loc))]))

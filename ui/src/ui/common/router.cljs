@@ -10,7 +10,7 @@
   ["/" [["" :home]
         [true :not-found]]])
 
-(s/def ::active-page #{:home :test :test2 :not-found})
+(s/def ::active-page #{:home :not-found})
 
 (s/def ::db (s/keys :req [::active-page]))
 

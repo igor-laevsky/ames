@@ -5,4 +5,4 @@
 
 (re-frame/reg-sub
   ::locations
-  (fn [db _] (::db/locations db)))
+  (fn [db _] (sort-by :name (::db/locations db))))
