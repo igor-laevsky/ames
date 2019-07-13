@@ -19,12 +19,12 @@ services:
       - 9200:9200
     networks:
       - dev-net
-  kibana:
-    image: docker.elastic.co/kibana/kibana:6.7.0
-    ports:
-      - 5601:5601
-    networks:
-      - dev-net
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:6.7.0
+  #   ports:
+  #     - 5601:5601
+  #   networks:
+  #     - dev-net
   db-api:
     image: clojure:lein-2.8.3
     ports:

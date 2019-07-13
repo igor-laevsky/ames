@@ -26,7 +26,8 @@
       (merge {:env         :prod
               ::http/host  "0.0.0.0"
               ::http/port  8080
-              ::http/join? false})))
+              ::http/join? false})
+      (http/default-interceptors)))
 
 (def prod-system
   (component/system-map

@@ -5,6 +5,7 @@
             [ui.router :as router]))
 
 (s/def ::active-page router/route-ids)
+
 (s/def ::db (s/keys :req-un [::active-page]))
 
 (def default-db {:active-page :home})
