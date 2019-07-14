@@ -1,6 +1,8 @@
 (ns ui.test.main
-  (:require [ui.test.locations]
-            [figwheel.main.testing :refer [run-tests-async]]))
+  (:require  [figwheel.main.testing :refer [run-tests-async]]
+
+             [ui.test.locations]
+             [ui.test.patients]))
 
 (defn -main [& args]
   (run-tests-async 5000))

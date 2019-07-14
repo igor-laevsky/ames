@@ -4,6 +4,7 @@
 
             [ui.locations.subs :as subs]))
 
+;; Helper function which displays single locations as a card on a grid.
 (defn location-view [location]
   ^{:key (:name location)}
   [:div.location.card.shadow-sm.m-2 {:style {:width "10rem"}}
@@ -16,6 +17,8 @@
      " из "
      [:span.text-danger.font-weight-bold (:total location)]]]])
 
+;; Lists all available locations into one big grid.
+;;
 (defn main []
   (let [locations @(re-frame/subscribe [::subs/locations])]
     [:div.row (for [loc locations] (location-view loc))]))

@@ -6,12 +6,12 @@
             [ui.locations.subs :as subs]
             [ui.locations.events :as events]))
 
-(deftest get-locations
+(deftest get-locations-test
   (rf-test/run-test-async
     (rf/dispatch [:initialize-db])
 
     (let [locations (rf/subscribe [::subs/locations])]
-      (is (= nil @locations))
+      (is (empty? @locations))
       (rf/dispatch [::events/get-locations])
       (rf-test/wait-for [::events/get-locations-success ::events/api-request-error]
         (is (= 13 (count @locations)))))))
