@@ -57,7 +57,9 @@
 (defn- expand-names [inp]
   (map #(let [s (-> (:name %) (clojure.string/split #" "))
               [name rand-num] (filter (complement empty?) s)]
-          (merge % {:name name :rand-num rand-num})) inp))
+          (if rand-num
+            (merge % {:name name :rand-num rand-num})
+            (merge % {:name name}))) inp))
 
 ;; List patients for a given locations.
 ;; Expects "&loc=..." in the query-params.

@@ -71,7 +71,7 @@
       (is (= 200 status))
       (is (= "03-001" (-> parsed-body first :name)))
       (is (= "R008" (-> parsed-body first :rand-num)))
-      (is (= nil (-> parsed-body last :rand-num)))
+      (is (= "not found" (-> parsed-body last (get :rand-num "not found"))))
       (is (= 11 (-> parsed-body second :total)))
       (is (= 0 (-> parsed-body second :verified))))))
 
