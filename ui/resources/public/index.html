@@ -11,16 +11,17 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
     <header>
-      <nav class="navbar navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">AMES</a>
-
-        <form class="form-inline mt-2 mt-md-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="Поиск" aria-label="Поиск">
+      <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-1 shadow">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">AMES</a>
+        <input class="form-control form-control-dark w-100" type="text"
+               placeholder="Поиск" aria-label="Поиск">
+        <ul class="navbar-nav px-3">
           <button class="btn btn-info my-2 my-sm-0" type="submit">
             <img src="/icons/search.svg" alt="search" style="filter: invert(100%);">
           </button>
-        </form>
+        </ul>
       </nav>
+
     </header>
 
     <div id="app" class="container"></div>
