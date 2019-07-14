@@ -2,6 +2,7 @@
   (:require [cljs.pprint :refer [pprint]]
             [re-frame.core :as re-frame]
 
+            [ui.common.router :as router]
             [ui.locations.subs :as subs]))
 
 ;; Helper function which displays single locations as a card on a grid.
@@ -15,7 +16,9 @@
      [:br]
      [:span.text-success.font-weight-bold (:verified location)]
      " из "
-     [:span.text-danger.font-weight-bold (:total location)]]]])
+     [:span.text-danger.font-weight-bold (:total location)]]
+    [:a.stretched-link
+     {:href (router/url-for :list-patients :location-id (:name location))}]]])
 
 ;; Lists all available locations into one big grid.
 ;;

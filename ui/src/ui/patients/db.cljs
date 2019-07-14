@@ -8,10 +8,13 @@
 (s/def ::rand-num string?)
 (s/def ::total int?)
 (s/def ::verified int?)
-(s/def ::patient (s/keys :req-un [::name ::rand-num ::total ::verified]))
+(s/def ::patient (s/keys :req-un [::name ::total ::verified]
+                         ::opt-un [::rand-num ]))
 
 (s/def ::patients (s/coll-of ::patient))
 
-(s/def ::db (s/keys ::opt [::patients]))
+(s/def ::cur-location string?)
+
+(s/def ::db (s/keys ::opt [::patients ::cur-location]))
 
 (def validate-db (utils/validate-db ::db))

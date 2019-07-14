@@ -11,7 +11,7 @@
         [[:location-id "/"] :list-patients]
         [true :not-found]]])
 
-(s/def ::active-page #{:home :not-found})
+(s/def ::active-page #{:home :list-patients :not-found})
 
 (s/def ::db (s/keys :req [::active-page]))
 

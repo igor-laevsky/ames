@@ -9,7 +9,12 @@
             [ui.locations.db]
             [ui.locations.events]
             [ui.locations.subs]
-            [ui.locations.views]))
+            [ui.locations.views]
+
+            [ui.patients.db]
+            [ui.patients.events]
+            [ui.patients.subs]
+            [ui.patients.views]))
 
 (re-frame/reg-event-db
   :initialize-db
@@ -25,6 +30,11 @@
         :home {:db new-db
                :dispatch [::ui.locations.events/get-locations]}
 
+        ; List patients while
+        :list-patients {:db new-db
+                        :dispatch [::ui.patients.events/get-patients
+                                   {:location-id (:location-id params)}]}
+
         ; default, not found
         {:db (assoc db ::router/active-page :not-found)}))))
 
@@ -32,6 +42,12 @@
   (let [active-page @(re-frame/subscribe [::router/active-page])]
     (case active-page
       :home [ui.locations.views/main]
+
+      :list-patients
+      [:div.row
+       [:nav.col-md-2.bg-light.sidebar
+        [ui.patients.views/patient-list]]]
+
       :not-found [:h1 "Error 404"])))
 
 (enable-console-print!)

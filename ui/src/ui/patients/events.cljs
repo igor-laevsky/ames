@@ -17,7 +17,8 @@
                   :params          {:loc location-id}
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success      [::get-patients-success]
-                  :on-failure      [::get-patients-fail]}}))
+                  :on-failure      [::get-patients-fail]}
+     :db (assoc db ::db/cur-location location-id)}))
 
 (re-frame/reg-event-db
   ::get-patients-success
