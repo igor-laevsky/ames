@@ -102,3 +102,49 @@
 ;;
 (defn list-exps [{:keys [params es-client] :as es} name from size]
   (search es (str "patient.name:" name) from size))
+
+;; List all visits for a given location and patient.
+;;
+(defn list-visits [{:keys [params es-client] :as es} loc patient]
+  (->
+    (spandex/request es-client
+                     {:method :get
+                      :url    (str (:index params) "/_search")
+                      :body   (->
+                                "{
+                                  \"size\": 0,
+                                  \"query\": {
+                                    \"bool\": {
+                                      \"must\": [
+                                        {
+                                          \"match\": {
+                                            \"location\": \"%s\"
+                                          }
+                                        },
+                                        {
+                                          \"match\": {
+                                            \"patient.name\": \"%s\"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  \"aggs\": {
+                                    \"visits\": {
+                                      \"terms\": {
+                                        \"field\": \"visit\"
+                                      },
+                                      \"aggs\": {
+                                        \"verified\": {
+                                          \"terms\": {
+                                            \"field\": \"verified\",
+                                            \"size\": 10000
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }"
+                                (format loc patient)
+                                spandex/->Raw)})
+    :body))

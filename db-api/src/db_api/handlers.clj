@@ -62,7 +62,7 @@
             (merge % {:name name}))) inp))
 
 ;; List patients for a given locations.
-;; Expects "&loc=..." in the query-params.
+;; Expects "?loc=..." in the query-params.
 ;; Returns results in the form of
 ;;   [{:name "01-002", :rand-num "R001", :total <int>, :verified <int>}, ...]
 ;;
@@ -73,6 +73,20 @@
         (expand-names)
         (ring-resp/response))
     (throw (ex-info "Expected location as an argument" req))))
+
+;; Lists visits for a given patient in a given location.
+;; Expects "?loc=...&pat=..." in the query-params.
+;; Returns results in the form of:
+;;   [{:name "se.SCR", :verified <int>, :total <int>}, ...]
+;;
+(defn get-visits [req]
+  (let [loc (get-in req [:query-params :loc])
+        patient (get-in req [:query-params :pat])]
+    (if (and loc patient)
+      (-> (es/list-visits (c/use-component req :es) loc patient)
+          (es-to-list :visits)
+          (ring-resp/response))
+      (throw (ex-info "Expected location as an argument" req)))))
 
 ;; List exps for a given patient in a given center sorted by date.
 ;; Expects patient name in the query-params. From and size arguments are optional.
@@ -103,6 +117,9 @@
       ["/patients"
        :get (conj common-interceptors (c/using-component :es) get-patients)
        :route-name :patients]
+      ["/visits"
+       :get (conj common-interceptors (c/using-component :es) get-visits)
+       :route-name :visits]
       ["/exps"
        :get (conj common-interceptors (c/using-component :es) get-exps)
        :route-name :exps]}))

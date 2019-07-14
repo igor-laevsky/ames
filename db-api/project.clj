@@ -2,7 +2,7 @@
   :description ""
   :url "https://github.com/igor-laevsky/ames"
   :license {}
-  :main db-api.main
+  :main ^:skip-aot db-api.main
   :repl-options {:init-ns user}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/data.json "0.2.6"]

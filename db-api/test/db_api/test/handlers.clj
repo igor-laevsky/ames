@@ -75,6 +75,17 @@
       (is (= 11 (-> parsed-body second :total)))
       (is (= 0 (-> parsed-body second :verified))))))
 
+(deftest test-visits
+  (with-system [sys (create-test-system)]
+    (let [{:keys [status body]} (response-for (get-service-fn sys)
+                                              :get
+                                              (url-for :visits
+                                                       :query-params {:loc "01"
+                                                                      :pat "01-003"}))
+          parsed-body (json/read-str body :key-fn keyword)]
+      (is (= 200 status))
+      (is (not= 0 (count parsed-body))))))
+
 (deftest test-exps
   (with-system [sys (create-test-system)]
     (let [{:keys [status body]} (response-for (get-service-fn sys)
