@@ -1,4 +1,4 @@
-(defproject ames/db-api "0.1.0"
+(defproject ames/ui "0.1.0"
   :description ""
   :url "https://github.com/igor-laevsky/ames"
   :license {}
