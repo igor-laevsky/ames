@@ -10,3 +10,10 @@
 ;; `spec` should be a keyword.
 (defn validate-db [spec]
   (re-frame/after (partial validate-db-helper spec)))
+
+;; Helper function to convert visit to it's name
+;;
+(defn visit->name [{:keys [name group]}]
+  (if group
+    (str name " (" group ")")
+    name))

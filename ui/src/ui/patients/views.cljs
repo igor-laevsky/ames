@@ -3,6 +3,7 @@
             [re-frame.core :as re-frame]
 
             [ui.common.router :as router]
+            [ui.common.utils :as utils]
             [ui.patients.subs :as subs]))
 
 ;; Lists patients, expected to be used as a sidebar.
@@ -47,7 +48,7 @@
        [:li.nav-item
         [:a.nav-link
          {:href "#"}
-         (:name v)
+         (utils/visit->name v)
          " "
          [:span.font-weight-bold
           [:span.text-success (:verified v)]
