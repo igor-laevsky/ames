@@ -132,7 +132,11 @@
                                   \"aggs\": {
                                     \"visits\": {
                                       \"terms\": {
-                                        \"field\": \"visit\"
+                                        \"script\" : {
+                                          \"source\": \"doc['visit'].value + ' ' + doc['group'].value\",
+                                          \"lang\": \"painless\"
+                                        },
+                                        \"size\": 10000
                                       },
                                       \"aggs\": {
                                         \"verified\": {
