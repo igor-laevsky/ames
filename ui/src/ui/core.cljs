@@ -30,10 +30,9 @@
         :home {:db new-db
                :dispatch [::ui.locations.events/get-locations]}
 
-        ; List patients while
         :list-patients {:db new-db
-                        :dispatch [::ui.patients.events/get-patients
-                                   {:location-id (:location-id params)}]}
+                        :dispatch [::ui.patients.events/load
+                                   {:location-name (:location-name params)}]}
 
         ; default, not found
         {:db (assoc db ::router/active-page :not-found)}))))

@@ -18,7 +18,7 @@
      " из "
      [:span.text-danger.font-weight-bold (:total location)]]
     [:a.stretched-link
-     {:href (router/url-for :list-patients :location-id (:name location))}]]])
+     {:href (router/url-for :list-patients :location-name (:name location))}]]])
 
 ;; Lists all available locations into one big grid.
 ;;

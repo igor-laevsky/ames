@@ -8,7 +8,7 @@
 
 (def ^:private routes
   ["/" [["" :home]
-        [[:location-id "/"] :list-patients]
+        [[:location-name "/"] :list-patients]
         [true :not-found]]])
 
 (s/def ::active-page #{:home :list-patients :not-found})

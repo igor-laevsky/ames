@@ -5,8 +5,12 @@
 
 (re-frame/reg-sub
   ::patients
-  (fn [db _] (sort-by :name (::db/patients db))))
+  (fn [db _] (::db/patients db)))
 
 (re-frame/reg-sub
   ::cur-location
   (fn [db _] (::db/cur-location db)))
+
+(re-frame/reg-sub
+  ::visits
+  (fn [db _] (::db/visits db)))

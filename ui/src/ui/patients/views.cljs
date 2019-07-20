@@ -15,7 +15,7 @@
        {:href (router/url-for :home)}
        [:img {:src "/icons/back.svg" :alt "Back"}]
        [:span.font-weight-bold "Назад"]]
-      [:h6.font-weight-bold "Центр " cur-location]]
+      [:span.h6.font-weight-bold "Центр " cur-location]]
 
      (for [p patients]
        ^{:key (:name p)}
