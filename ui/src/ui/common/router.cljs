@@ -9,9 +9,10 @@
 (def ^:private routes
   ["/" [["" :home]
         [[:location-name "/"] :list-patients]
+        [[:location-name "/" :patient-name "/"] :list-visits]
         [true :not-found]]])
 
-(s/def ::active-page #{:home :list-patients :not-found})
+(s/def ::active-page #{:home :list-patients :list-visits :not-found})
 
 (s/def ::db (s/keys :req [::active-page]))
 

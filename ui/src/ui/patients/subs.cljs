@@ -4,12 +4,16 @@
             [ui.patients.db :as db]))
 
 (re-frame/reg-sub
-  ::patients
-  (fn [db _] (::db/patients db)))
-
-(re-frame/reg-sub
   ::cur-location
   (fn [db _] (::db/cur-location db)))
+
+(re-frame/reg-sub
+  ::cur-patient
+  (fn [db _] (::db/cur-patient db)))
+
+(re-frame/reg-sub
+  ::patients
+  (fn [db _] (::db/patients db)))
 
 (re-frame/reg-sub
   ::visits

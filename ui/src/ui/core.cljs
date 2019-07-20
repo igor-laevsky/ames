@@ -30,9 +30,9 @@
         :home {:db new-db
                :dispatch [::ui.locations.events/get-locations]}
 
-        :list-patients {:db new-db
-                        :dispatch [::ui.patients.events/load
-                                   {:location-name (:location-name params)}]}
+        (:list-patients :list-visits)
+          {:db new-db
+           :dispatch [::ui.patients.events/load params]}
 
         ; default, not found
         {:db (assoc db ::router/active-page :not-found)}))))
@@ -42,10 +42,12 @@
     (case active-page
       :home [ui.locations.views/main]
 
-      :list-patients
+      (:list-patients :list-visits)
       [:div.row
        [:nav.col-md-2.bg-light.sidebar
-        [ui.patients.views/patient-list]]]
+        [ui.patients.views/patient-list]]
+       [:nav.col-md-2.bg-light.sidebar-second
+        [ui.patients.views/visits-list]]]
 
       :not-found [:h1 "Error 404"])))
 
