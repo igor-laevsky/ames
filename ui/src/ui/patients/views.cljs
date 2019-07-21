@@ -70,7 +70,7 @@
         cur-location @(re-frame/subscribe [::subs/cur-location])
         cur-patient @(re-frame/subscribe [::subs/cur-patient])
         cur-visit @(re-frame/subscribe [::subs/cur-visit])]
-    [:table.table-bordered.table-hover
+    [:table.table.table-hover
      [:thead
       [:tr
        [:th {:scope "col"} "Дата"]
