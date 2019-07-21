@@ -25,7 +25,22 @@
       (is (empty? @visits))
       (rf/dispatch [::events/get-patients {:location-name "04"}])
       (rf-test/wait-for [::events/get-patients-success ::events/get-patients-fail]
-        (rf/dispatch [::events/get-visits {:location-name "04"}])
+        (rf/dispatch [::events/get-visits])
         (rf-test/wait-for [::events/get-visits-success ::events/get-visits-fail]
           (is ((complement empty?) @visits))
           (is (not= 0 (count @visits))))))))
+
+(deftest get-exps-test
+  (rf-test/run-test-async
+    (rf/dispatch [:initialize-db])
+
+    (let [exps (rf/subscribe [::subs/exps])]
+      (is (empty? @exps))
+      (rf/dispatch [::events/get-patients {:location-name "04"}])
+      (rf-test/wait-for [::events/get-patients-success ::events/get-patients-fail]
+        (rf/dispatch [::events/get-visits])
+        (rf-test/wait-for [::events/get-visits-success ::events/get-visits-fail]
+          (rf/dispatch [::events/get-exps])
+          (rf-test/wait-for [::events/get-exps-success ::events/get-exps-fail]
+            (is ((complement empty?) @exps))
+            (is (not= 0 (count @exps)))))))))
