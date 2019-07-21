@@ -3,7 +3,7 @@
             [re-frame.core :as re-frame]
 
             [ui.common.router :as router]
-            [ui.common.utils :as utils]
+            [ui.common.meta :as meta]
             [ui.patients.subs :as subs]))
 
 ;; Lists patients, expected to be used as a sidebar.
@@ -50,14 +50,14 @@
                           (first))]
     [:ul.nav.flex-column.nav-pills
      (for [v visits]
-       ^{:key (utils/visit->name v)}
+       ^{:key (meta/visit->name v)}
        [:li.nav-item
         [(if (identical? active-visit v) :a.nav-link.active :a.nav-link)
          {:href (router/url-for :list-exps
                                 :location-name cur-location
                                 :patient-name cur-patient
-                                :visit-name (utils/visit->url-name v))}
-         (utils/visit->name v)
+                                :visit-name (meta/visit->url-name v))}
+         (meta/visit->name v)
          " "
          [:span.font-weight-bold
           [:span.text-success (:verified v)]
@@ -81,7 +81,7 @@
         (let [exp-url (router/url-for :show-exp
                                       :location-name cur-location
                                       :patient-name cur-patient
-                                      :visit-name (utils/visit->url-name cur-visit)
+                                      :visit-name (meta/visit->url-name cur-visit)
                                       :exp-id (:_id e))]
           ^{:key (:_id e)}
           [:tr
@@ -105,7 +105,7 @@
         {:href (router/url-for :list-exps
                                :location-name cur-location
                                :patient-name cur-patient
-                               :visit-name (utils/visit->url-name cur-visit))}
+                               :visit-name (meta/visit->url-name cur-visit))}
         "< Назад"]
        [:h4
         (with-out-str (pprint (:_source exp)))]]

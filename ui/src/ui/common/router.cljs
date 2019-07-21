@@ -17,7 +17,7 @@
 (s/def ::active-page
   #{:home :list-patients :list-visits :list-exps :show-exp :not-found})
 
-(s/def ::page-params map?)
+(s/def ::page-params (s/or :nil nil? :map map?))
 (s/def ::db (s/keys :req [::active-page]
                     :opt [::page-params]))
 

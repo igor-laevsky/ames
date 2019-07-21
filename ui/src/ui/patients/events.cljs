@@ -7,7 +7,7 @@
             [ajax.core :as ajax]
 
             [ui.common.config :as cfg]
-            [ui.common.utils :as utils]
+            [ui.common.meta :as meta]
             [ui.patients.db :as db]))
 
 ;; Load all the required data. location-name is required. Two other params are
@@ -98,7 +98,7 @@
           patient-name (-> db ::db/cur-patient)
           clean-visit (if-not visit-name
                         (-> db ::db/visits first (select-keys [:name :group]))
-                        (utils/url-name->visit visit-name))
+                        (meta/url-name->visit visit-name))
           query (if (:group clean-visit)
                   (goog.string/format
                     "location:%s AND patient.name:%s AND visit:%s AND group:%s",
