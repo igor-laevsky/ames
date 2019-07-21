@@ -11,15 +11,23 @@
         [[:location-name "/"] :list-patients]
         [[:location-name "/" :patient-name "/"] :list-visits]
         [[:location-name "/" :patient-name "/" :visit-name "/"] :list-exps]
+        [[:location-name "/" :patient-name "/" :visit-name "/" :exp-id "/"] :show-exp]
         [true :not-found]]])
 
-(s/def ::active-page #{:home :list-patients :list-visits :list-exps :not-found})
+(s/def ::active-page
+  #{:home :list-patients :list-visits :list-exps :show-exp :not-found})
 
-(s/def ::db (s/keys :req [::active-page]))
+(s/def ::page-params map?)
+(s/def ::db (s/keys :req [::active-page]
+                    :opt [::page-params]))
 
 (re-frame/reg-sub
   ::active-page
   (fn [db _] (::active-page db)))
+
+(re-frame/reg-sub
+  ::page-params
+  (fn [db _] (::page-params db)))
 
 (def ^:private pushy-router
   (let [dispatch #(re-frame/dispatch

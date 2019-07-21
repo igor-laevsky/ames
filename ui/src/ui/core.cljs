@@ -24,13 +24,15 @@
   :set-active-page
   [(utils/validate-db ::router/db)]
   (fn-traced [{:keys [db]} [_ {:keys [page params]}]]
-    (let [new-db (assoc db ::router/active-page page)]
+    (let [new-db (-> db
+                     (assoc ::router/active-page page)
+                     (assoc ::router/page-params params))]
       (case page
         ; Home page is 'locations'
         :home {:db new-db
                :dispatch [::ui.locations.events/get-locations]}
 
-        (:list-patients :list-visits :list-exps)
+        (:list-patients :list-visits :list-exps :show-exp)
           {:db new-db
            :dispatch [::ui.patients.events/load params]}
 
@@ -38,7 +40,8 @@
         {:db (assoc db ::router/active-page :not-found)}))))
 
 (defn main-app []
-  (let [active-page @(re-frame/subscribe [::router/active-page])]
+  (let [active-page @(re-frame/subscribe [::router/active-page])
+        page-params @(re-frame/subscribe [::router/page-params])]
     (case active-page
       :home [ui.locations.views/main]
 
@@ -50,6 +53,16 @@
         [ui.patients.views/visits-list]]
        [:main.col-md-6.ml-sm-auto.col-lg-80.px-4
         [ui.patients.views/exp-list]]]
+
+      :show-exp
+      [:div.row
+       [:nav.col-md-2.bg-light.sidebar
+        [ui.patients.views/patient-list]]
+       [:nav.col-md-2.bg-light.sidebar-second
+        [ui.patients.views/visits-list]]
+       [:main.col-md-6.ml-sm-auto.col-lg-80.px-4
+        [ui.patients.views/show-exp (:exp-id page-params)]]]
+
 
       :not-found [:h1 "Error 404"])))
 

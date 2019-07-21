@@ -26,3 +26,11 @@
 (re-frame/reg-sub
   ::exps
   (fn [db _] (::db/exps db)))
+
+(re-frame/reg-sub
+  ::exp-by-id
+  :<- [::exps]
+  (fn [exps [_ exp-id]]
+    (->> exps
+         (filter #(= exp-id (:_id %)))
+         (first))))

@@ -66,7 +66,10 @@
      [:div.mt-4]]))
 
 (defn exp-list []
-  (let [exps @(re-frame/subscribe [::subs/exps])]
+  (let [exps @(re-frame/subscribe [::subs/exps])
+        cur-location @(re-frame/subscribe [::subs/cur-location])
+        cur-patient @(re-frame/subscribe [::subs/cur-patient])
+        cur-visit @(re-frame/subscribe [::subs/cur-visit])]
     [:table.table-bordered.table-hover
      [:thead
       [:tr
@@ -75,13 +78,35 @@
 
      [:tbody
       (for [e exps]
-        ^{:key (:_id e)}
-        [:tr
-         [:td
-          [:a
-           {:href "#"}
-           (get-in e [:_source :date] "--")]]
-         [:td
-          [:a
-           {:href "#"}
-           (get-in e [:_source :type] "--")]]])]]))
+        (let [exp-url (router/url-for :show-exp
+                                      :location-name cur-location
+                                      :patient-name cur-patient
+                                      :visit-name (utils/visit->url-name cur-visit)
+                                      :exp-id (:_id e))]
+          ^{:key (:_id e)}
+          [:tr
+           [:td
+            [:a
+             {:href exp-url}
+             (get-in e [:_source :date] "--")]]
+           [:td
+            [:a
+             {:href exp-url}
+             (get-in e [:_source :type] "--")]]]))]]))
+
+(defn show-exp [exp-id]
+  (let [exp @(re-frame/subscribe [::subs/exp-by-id exp-id])
+        cur-location @(re-frame/subscribe [::subs/cur-location])
+        cur-patient @(re-frame/subscribe [::subs/cur-patient])
+        cur-visit @(re-frame/subscribe [::subs/cur-visit])]
+    (if (not-any? nil? [exp cur-location cur-patient cur-visit])
+      [:div
+       [:a.h6.align-left
+        {:href (router/url-for :list-exps
+                               :location-name cur-location
+                               :patient-name cur-patient
+                               :visit-name (utils/visit->url-name cur-visit))}
+        "< Назад"]
+       [:h4
+        (with-out-str (pprint (:_source exp)))]]
+      (:h6 "Loading"))))
