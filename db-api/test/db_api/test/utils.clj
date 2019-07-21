@@ -4,7 +4,6 @@
             [io.pedestal.http.route :as route]
             [com.stuartsierra.component :as component]
 
-            [db-api.main :as main]
             [db-api.handlers :as handlers]))
 
 (defmacro with-system

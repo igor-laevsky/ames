@@ -20,7 +20,7 @@
 
     [cdl.core :as cdl]
 
-    [db-api.main :as main]
+    [db-api.core :as core]
     [db-api.es :as es]
     [db-api.handlers :as handlers]
     [db-api.pedestal :as p]))
@@ -30,7 +30,7 @@
 (clojure.tools.namespace.repl/set-refresh-dirs "dev" "src" "test" "checkouts")
 
 (def dev-service-map
-  (-> main/common-service-map
+  (-> core/common-service-map
       (merge {:env         :dev
               ::http/join? false})
       (http/default-interceptors)

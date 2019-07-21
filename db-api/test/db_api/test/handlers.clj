@@ -6,7 +6,7 @@
             [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
 
-            [db-api.main :as main]
+            [db-api.core :as main]
             [db-api.pedestal :refer [make-pedestal]]
             [db-api.es :as es]
             [db-api.test.utils :refer [with-system url-for get-service-fn]]))
