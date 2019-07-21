@@ -6,8 +6,10 @@
 
 (s/def ::cur-location string?)
 (s/def ::cur-patient string?)
+(s/def ::cur-visit (s/keys ::req [::name] ::opt [::group]))
 
 (s/def ::name string?)
+(s/def ::group string?)
 (s/def ::rand-num string?)
 (s/def ::total int?)
 (s/def ::verified int?)
@@ -30,12 +32,16 @@
                               :ui.patients.db.exp/group
                               :ui.patients.db.exp/location
                               :ui.patients.db.exp/finished
-                              :ui.patients.db.exp/is-verified]))
-(s/def ::exps (s/coll-of ::exp))
+                              :ui.patients.db.exp/verified]))
+
+(s/def ::_id string?)
+(s/def ::_source ::exp)
+(s/def ::search-hit (s/keys :req-un [::_id ::_source]))
+(s/def ::exps (s/coll-of ::search-hit))
 
 (s/def ::db (s/keys)) ; everything is optional
 (s/def ::db-with-patients (s/keys ::req [::cur-location ::patients]))
-(s/def ::db-with-visits (s/keys ::req [::cur-patient ::visits]))
+(s/def ::db-with-visits (s/keys ::req [::cur-location ::cur-patient ::visits]))
 
 (def validate-db (utils/validate-db ::db))
 (def validate-db-with-patients (utils/validate-db ::db-with-patients))

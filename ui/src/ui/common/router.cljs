@@ -10,9 +10,10 @@
   ["/" [["" :home]
         [[:location-name "/"] :list-patients]
         [[:location-name "/" :patient-name "/"] :list-visits]
+        [[:location-name "/" :patient-name "/" :visit-name "/"] :list-exps]
         [true :not-found]]])
 
-(s/def ::active-page #{:home :list-patients :list-visits :not-found})
+(s/def ::active-page #{:home :list-patients :list-visits :list-exps :not-found})
 
 (s/def ::db (s/keys :req [::active-page]))
 

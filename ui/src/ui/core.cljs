@@ -30,7 +30,7 @@
         :home {:db new-db
                :dispatch [::ui.locations.events/get-locations]}
 
-        (:list-patients :list-visits)
+        (:list-patients :list-visits :list-exps)
           {:db new-db
            :dispatch [::ui.patients.events/load params]}
 
@@ -42,7 +42,7 @@
     (case active-page
       :home [ui.locations.views/main]
 
-      (:list-patients :list-visits)
+      (:list-patients :list-visits :list-exps)
       [:div.row
        [:nav.col-md-2.bg-light.sidebar
         [ui.patients.views/patient-list]]

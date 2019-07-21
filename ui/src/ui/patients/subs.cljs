@@ -12,6 +12,10 @@
   (fn [db _] (::db/cur-patient db)))
 
 (re-frame/reg-sub
+  ::cur-visit
+  (fn [db _] (::db/cur-visit db)))
+
+(re-frame/reg-sub
   ::patients
   (fn [db _] (::db/patients db)))
 

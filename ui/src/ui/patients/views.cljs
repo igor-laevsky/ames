@@ -10,7 +10,10 @@
 (defn patient-list []
   (let [patients @(re-frame/subscribe [::subs/patients])
         cur-location @(re-frame/subscribe [::subs/cur-location])
-        cur-patient @(re-frame/subscribe [::subs/cur-patient])]
+        cur-patient @(re-frame/subscribe [::subs/cur-patient])
+        active-patient (->> patients
+                            (filter #(= cur-patient (:name %)))
+                            first)]
     [:ul.nav.flex-column
      [:p.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1.text-muted
       [:a.d-flex.align-items-center.text-muted
@@ -19,35 +22,41 @@
        [:span.font-weight-bold "Назад"]]
       [:span.h6.font-weight-bold "Центр " cur-location]]
 
-     (let [active-patient (->> patients
-                               (filter #(= cur-patient (:name %)))
-                               first)]
-       (for [p patients]
-         ^{:key (:name p)}
-         [(if (identical? active-patient p) :li.nav-item.active :li.nav-item)
-          [:a.nav-link
-           {:href (router/url-for :list-visits
-                                  :location-name cur-location
-                                  :patient-name (:name p))}
-           [:img {:src "/icons/human.svg"}]
-           " "
-           (:name p) " " (get p :rand-num "")
-           " "
-           [:span.font-weight-bold
-            [:span.text-success (:verified p)]
-            " / "
-            [:span.text-danger (:total p)]]]]))
+     (for [p patients]
+       ^{:key (:name p)}
+       [(if (identical? active-patient p) :li.nav-item.active :li.nav-item)
+        [:a.nav-link
+         {:href (router/url-for :list-visits
+                                :location-name cur-location
+                                :patient-name (:name p))}
+         [:img {:src "/icons/human.svg"}]
+         " "
+         (:name p) " " (get p :rand-num "")
+         " "
+         [:span.font-weight-bold
+          [:span.text-success (:verified p)]
+          " / "
+          [:span.text-danger (:total p)]]]])
 
      [:div.mt-4]]))
 
 (defn visits-list []
-  (let [visits @(re-frame/subscribe [::subs/visits])]
+  (let [visits @(re-frame/subscribe [::subs/visits])
+        cur-location @(re-frame/subscribe [::subs/cur-location])
+        cur-patient @(re-frame/subscribe [::subs/cur-patient])
+        cur-visit @(re-frame/subscribe [::subs/cur-visit])
+        active-visit (->> visits
+                          (filter #(= cur-visit (select-keys % [:name :group])))
+                          (first))]
     [:ul.nav.flex-column.nav-pills
      (for [v visits]
-       ^{:key (:name v)}
+       ^{:key (utils/visit->name v)}
        [:li.nav-item
-        [:a.nav-link
-         {:href "#"}
+        [(if (identical? active-visit v) :a.nav-link.active :a.nav-link)
+         {:href (router/url-for :list-exps
+                                :location-name cur-location
+                                :patient-name cur-patient
+                                :visit-name (utils/visit->url-name v))}
          (utils/visit->name v)
          " "
          [:span.font-weight-bold
