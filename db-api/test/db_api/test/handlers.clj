@@ -47,7 +47,15 @@
             parsed-body (json/read-str body :key-fn keyword)]
         (is (= 200 status))
         (is (= 11 (:total parsed-body)))
-        (is (= 1 (count (:hits parsed-body))))))))
+        (is (= 1 (count (:hits parsed-body)))))
+      (let [{:keys [status body]} (make-request
+                                    {:q "location:01 AND
+                                         patient:01-003 AND
+                                         visit:vnok/se.SCR"})
+            parsed-body (json/read-str body :key-fn keyword)]
+        (is (= 200 status))
+        (is (not= 0 (:total parsed-body)))
+        (is (not= 0 (count (:hits parsed-body))))))))
 
 (deftest test-locations
   (with-system [sys (create-test-system)]

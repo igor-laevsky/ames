@@ -16,6 +16,7 @@
     [io.pedestal.http.route :as route]
     [qbits.spandex :as spandex]
     [orchestra.spec.test :as st]
+    [ring.util.codec :as c]
 
     [cdl.core :as cdl]
 
@@ -48,4 +49,3 @@
 
 (defn get-service-fn [system]
   (get-in system [:pedestal :server ::http/service-fn]))
-

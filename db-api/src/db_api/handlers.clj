@@ -4,6 +4,7 @@
             [io.pedestal.http :as http]
             [io.pedestal.http.route :as route]
             [ring.util.response :as ring-resp]
+            [ring.util.codec :as ring-codec]
             [qbits.spandex :as spandex]
 
             [db-api.pedestal :as c]
@@ -16,7 +17,9 @@
 ;;
 (defn search-handler [req]
   (let [es (c/use-component req :es)
-        query (get-in req [:query-params :q])
+        query (some-> (get-in req [:query-params :q])
+                      (clojure.string/escape {\/ "\\/"})
+                      (ring-codec/url-encode))
         from (get-in req [:query-params :from] "0")
         size (get-in req [:query-params :size] "1000")]
     (if query
