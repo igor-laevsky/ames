@@ -91,3 +91,7 @@ body {
   font-size: .75rem;
   text-transform: uppercase;
 }
+
+td a {
+   display: block;
+}

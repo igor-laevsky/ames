@@ -97,7 +97,7 @@
     (let [location-name (-> db ::db/cur-location)
           patient-name (-> db ::db/cur-patient)
           clean-visit (if-not visit-name
-                        (-> db ::db/visits first)
+                        (-> db ::db/visits first (select-keys [:name :group]))
                         (utils/url-name->visit visit-name))
           query (if (:group clean-visit)
                   (goog.string/format
@@ -118,8 +118,6 @@
   ::get-exps-success
   [db/validate-db]
   (fn-traced [db [_ result]]
-    (pprint "Got exps!")
-    ;(pprint result)
     (assoc db ::db/exps (:hits result))))
 
 (re-frame/reg-event-fx

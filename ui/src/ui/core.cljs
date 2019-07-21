@@ -47,7 +47,9 @@
        [:nav.col-md-2.bg-light.sidebar
         [ui.patients.views/patient-list]]
        [:nav.col-md-2.bg-light.sidebar-second
-        [ui.patients.views/visits-list]]]
+        [ui.patients.views/visits-list]]
+       [:main.col-md-6.ml-sm-auto.col-lg-80.px-4
+        [ui.patients.views/exp-list]]]
 
       :not-found [:h1 "Error 404"])))
 

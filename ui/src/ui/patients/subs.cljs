@@ -22,3 +22,7 @@
 (re-frame/reg-sub
   ::visits
   (fn [db _] (::db/visits db)))
+
+(re-frame/reg-sub
+  ::exps
+  (fn [db _] (::db/exps db)))

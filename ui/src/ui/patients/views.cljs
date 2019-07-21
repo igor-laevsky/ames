@@ -64,3 +64,24 @@
           " / "
           [:span.text-danger (:total v)]]]])
      [:div.mt-4]]))
+
+(defn exp-list []
+  (let [exps @(re-frame/subscribe [::subs/exps])]
+    [:table.table-bordered.table-hover
+     [:thead
+      [:tr
+       [:th {:scope "col"} "Дата"]
+       [:th {:scope "col"} "Название"]]]
+
+     [:tbody
+      (for [e exps]
+        ^{:key (:_id e)}
+        [:tr
+         [:td
+          [:a
+           {:href "#"}
+           (get-in e [:_source :date] "--")]]
+         [:td
+          [:a
+           {:href "#"}
+           (get-in e [:_source :type] "--")]]])]]))
