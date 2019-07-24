@@ -64,3 +64,7 @@
          (-> % :name remove-visit-prefix order)
          (:group %))
       visits)))
+
+;; Receives list of patients according to the db spec.
+(defn sort-patients [patients]
+  (sort-by :name patients))

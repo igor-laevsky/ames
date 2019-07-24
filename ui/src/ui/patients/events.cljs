@@ -41,7 +41,7 @@
   ::get-patients-success
   [db/validate-db]
   (fn-traced [db [_ result]]
-    (assoc db ::db/patients (sort-by :name result))))
+    (assoc db ::db/patients (meta/sort-patients result))))
 
 (re-frame/reg-event-fx
   ::get-patients-fail
