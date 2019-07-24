@@ -77,7 +77,7 @@
   ::get-visits-success
   [db/validate-db]
   (fn-traced [db [_ result]]
-    (assoc db ::db/visits (sort-by :name result))))
+    (assoc db ::db/visits (meta/sort-visits result))))
 
 (re-frame/reg-event-fx
   ::get-visits-fail
