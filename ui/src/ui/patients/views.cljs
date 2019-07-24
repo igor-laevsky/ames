@@ -107,6 +107,5 @@
                                :patient-name cur-patient
                                :visit-name (meta/visit->url-name cur-visit))}
         "< Назад"]
-       [:h4
-        (with-out-str (pprint (:_source exp)))]]
+       [:div.exp (meta/exp->view (:_source exp))]]
       (:h6 "Loading"))))

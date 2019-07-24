@@ -4,6 +4,10 @@
 ;;; This namespace contains various meta information about the current project.
 ;;;
 
+;;
+;; Names and ordering
+;;
+
 ;; Human readable visit names (use below functions)
 (def ^:private visit-names
   {"SCR" "Скрининг / День (-14 -1)"
@@ -68,3 +72,75 @@
 ;; Receives list of patients according to the db spec.
 (defn sort-patients [patients]
   (sort-by :name patients))
+
+;;
+;; Exp views
+;;
+
+;; Given a list of pairs [(field-name, field-value)...] return an html table
+;; representing it.
+(defn- fields->table [fields]
+  [:table.table-border.table
+   [:tbody
+    (for [p fields]
+      ^{:key (first p)}
+      [:tr
+       [:td (first p)]
+       [:td (second p)]])]])
+
+;; Given a list of pairs [(field-name, field-kw)...] returns same list with
+;; field-kw's replaced by their values from map 'm'.
+(defn- get-fields [m field-names]
+  (map (fn [name kw] [name (kw m)])
+       (map first field-names)
+       (map second field-names)))
+
+;; Given a map and a list of pairs [(field-name, field-kw)...] returns it's
+;; html representation.
+(defn- map->table [m field-names]
+  (-> m
+      (get-fields field-names)
+      (fields->table)))
+
+(defmulti exp->view :type)
+
+(defmethod exp->view :default [exp]
+  (throw (ex-info
+           (str "Unable to build view for a given exp type " (:type exp))
+           {:input exp})))
+
+(defmethod exp->view "vnok/DEMO" [exp]
+  (let [field-names [["Дата визита" :date]
+                     ["ДАТА ПОДПИСАНИЯ ИНФОРМИРОВАННОГО СОГЛАСИЯ" :agr-datetime]
+                     ["ДАТА РОЖДЕНИЯ" :birthday]
+                     ["ВОЗРАСТ" :age]
+                     ["ПОЛ" :gender]
+                     ["РАСА" :race]
+                     ["Другое, укажите" :other]]]
+    [map->table exp field-names]))
+
+(defmethod exp->view "vnok/MD" [exp]
+  [:div
+   [map->table exp [[(str
+                       "БЫЛИ ЛИ У ПАЦИЕНТА ОПЕРАТИВНЫЕ ВМЕШАТЕЛЬСТВА И ЗНАЧИМЫЕ, С"
+                       "ТОЧКИ ЗРЕНИЯ ИССЛЕДОВАТЕЛЯ, ПРЕДШЕСТВУЮЩИЕ И СОПУТСТВУЮЩИЕ "
+                       "ЗАБОЛЕВАНИЯ, ВКЛЮЧАЯ НАЛИЧИЕ В АНАМНЕЗЕ АЛЛЕРГИЧЕСКИХ РЕАКЦИЙ?")
+                     :has-records]]]
+   [:table
+    [:thead
+     [:tr
+      [:th "При необходимости зарегистрируйте сведения о сопутствующей / предшествующей терапии на форме ‘ПРЕДШЕСТВУЮЩАЯ / СОПУТСТВУЮЩАЯ ТЕРАПИЯ’"]]]]
+   (for [[idx rec] (map-indexed vector (:records exp))]
+     ^{:key idx}
+     [map->table
+       rec
+       [["СОСТОЯНИЕ / ДИАГНОЗ / ОПЕРАЦИЯ" :condition]
+        ["ДАТА НАЧАЛА" :start-date]
+        ["СТАТУС" :status]
+        ["ДАТА ЗАВЕРШЕНИЯ" :stop-date]]])])
+
+(defmethod exp->view "vnok/PE.v2-v10" [exp]
+  [:h1 "vnok/PE.v2-v10"])
+
+(defmethod exp->view "vnok/UV" [exp]
+  [:h1 "vnok/UV"])
