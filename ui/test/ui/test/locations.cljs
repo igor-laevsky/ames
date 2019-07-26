@@ -14,4 +14,4 @@
       (is (empty? @locations))
       (rf/dispatch [::events/get-locations])
       (rf-test/wait-for [::events/get-locations-success ::events/api-request-error]
-        (is (= 13 (count @locations)))))))
+        (is (not= 0 (count @locations)))))))

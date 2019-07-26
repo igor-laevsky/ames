@@ -1,4 +1,6 @@
-(ns ui.common.meta)
+(ns ui.common.meta
+
+  (:require [clojure.string]))
 
 ;;;
 ;;; This namespace contains various meta information about the current project.
