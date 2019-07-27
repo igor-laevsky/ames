@@ -12,11 +12,11 @@
   ::get-locations
   [db/validate-db]
   (fn-traced [{:keys [db]} _]
-    {:http-xhrio {:method          :get
-                  :uri             (cfg/endpoint "locations")
-                  :response-format (ajax/json-response-format {:keywords? true})
-                  :on-success      [::get-locations-success]
-                  :on-failure      [::api-request-error :get-locations]}}))
+    {:ajax {:tag :locations
+            :method          :get
+            :uri             (cfg/endpoint "locations")
+            :on-success      [::get-locations-success]
+            :on-failure      [::api-request-error :get-locations]}}))
 
 (re-frame/reg-event-db
   ::get-locations-success
