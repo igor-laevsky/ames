@@ -24,11 +24,16 @@
     (let [request-rules
           [{:when :seen? :events ::set-cur-location :dispatch [::get-patients]}
            {:when :seen? :events ::set-cur-patient :dispatch [::get-visits]}
-           {:when :seen? :events ::set-cur-visit :dispatch [::get-exps] :halt? true}
-           {:when :seen?
+           {:when :seen? :events ::set-cur-visit :dispatch [::get-exps]}
+           {:when :seen-any-of?
             :events [::get-patients-fail
                      ::get-visits-fail
                      ::get-exps-fail]
+            :halt? true}
+           {:when :seen-all-of?
+            :events [::get-patients-success
+                     ::get-visits-success
+                     ::get-exps-success]
             :halt? true}]
 
           nav-rules
