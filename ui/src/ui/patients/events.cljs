@@ -1,15 +1,16 @@
 (ns ui.patients.events
-  (:require [cljs.pprint :refer [pprint]]
+  (:require [clojure.spec.alpha :as s]
+            [cljs.pprint :refer [pprint]]
             [re-frame.core :as re-frame]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
             [day8.re-frame.http-fx]
             [day8.re-frame.async-flow-fx]
             [ajax.core :as ajax]
 
+            [ui.common.net]
             [ui.common.config :as cfg]
             [ui.common.meta :as meta]
-            [ui.patients.db :as db]
-            [clojure.spec.alpha :as s]))
+            [ui.patients.db :as db]))
 
 ;; Load all of the data we need to render the page.
 ;; location-name is required. Two other params are optional. If not specified
@@ -112,12 +113,12 @@
   ::get-patients
   [db/validate-db]
   (fn-traced [{:keys [db]} _]
-    {:http-xhrio {:method          :get
-                  :uri             (cfg/endpoint "patients")
-                  :params          {:loc (::db/cur-location db)}
-                  :response-format (ajax/json-response-format {:keywords? true})
-                  :on-success      [::get-patients-success]
-                  :on-failure      [::get-patients-fail]}}))
+    {:ajax {:tag :patients
+            :method :get
+            :uri (cfg/endpoint "patients")
+            :params {:loc (::db/cur-location db)}
+            :on-success [::get-patients-success]
+            :on-failure [::get-patients-fail]}}))
 
 (re-frame/reg-event-db
   ::get-patients-success
@@ -139,13 +140,13 @@
   ::get-visits
   [db/validate-db-with-patients]
   (fn-traced [{:keys [db]} _]
-      {:http-xhrio {:method :get
-                    :uri (cfg/endpoint "visits")
-                    :params {:loc (::db/cur-location db)
-                             :pat (::db/cur-patient db)}
-                    :response-format (ajax/json-response-format {:keywords? true})
-                    :on-success [::get-visits-success]
-                    :on-failure [::get-visits-fail]}}))
+      {:ajax {:tag :patients
+              :method :get
+              :uri (cfg/endpoint "visits")
+              :params {:loc (::db/cur-location db)
+                       :pat (::db/cur-patient db)}
+              :on-success [::get-visits-success]
+              :on-failure [::get-visits-fail]}}))
 
 (re-frame/reg-event-db
   ::get-visits-success
@@ -177,12 +178,12 @@
                   (goog.string/format
                     "location:%s AND patient.name:%s AND visit:%s",
                     location-name patient-name (:name cur-visit)))]
-      {:http-xhrio {:method :get
-                    :uri (cfg/endpoint "search")
-                    :params {:q query}
-                    :response-format (ajax/json-response-format {:keywords? true})
-                    :on-success [::get-exps-success]
-                    :on-failure [::get-exps-fail]}})))
+      {:ajax {:tag :patients
+              :method :get
+              :uri (cfg/endpoint "search")
+              :params {:q query}
+              :on-success [::get-exps-success]
+              :on-failure [::get-exps-fail]}})))
 
 (re-frame/reg-event-db
   ::get-exps-success
