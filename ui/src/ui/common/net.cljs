@@ -20,11 +20,18 @@
   (fn [db _] (::loading-tags db)))
 
 (re-frame/reg-sub
-  ::is-loading
+  ::is-loading-tag
   :<- [::loading-tags]
   (fn [loading-tags [_ tag]]
     (assert (keyword? tag) "tag must be a keyword")
     (pos? (get loading-tags tag 0))))
+
+(re-frame/reg-sub
+  ::is-loading-anything
+  :<- [::loading-tags]
+  (fn [loading-tags _]
+    (->> (vals loading-tags)
+         (some pos?))))
 
 (re-frame/reg-event-db
   ::request-start

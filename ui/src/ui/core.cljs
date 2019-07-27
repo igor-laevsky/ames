@@ -5,6 +5,7 @@
 
             [ui.common.router :as router]
             [ui.common.utils :as utils]
+            [ui.common.net :as net]
 
             [ui.locations.db]
             [ui.locations.events]
@@ -41,7 +42,12 @@
 
 (defn main-app []
   (let [active-page @(re-frame/subscribe [::router/active-page])
-        page-params @(re-frame/subscribe [::router/page-params])]
+        page-params @(re-frame/subscribe [::router/page-params])
+        is-loading @(re-frame/subscribe [::net/is-loading-anything])]
+    (when is-loading
+      [:div.spinner-border
+       {:role "status"}
+       [:span.sr-only "Loading..."]])
     (case active-page
       :home [ui.locations.views/main]
 
