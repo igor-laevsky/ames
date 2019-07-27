@@ -107,5 +107,5 @@
                                :patient-name cur-patient
                                :visit-name (meta/visit->url-name cur-visit))}
         "< Назад"]
-       [:div.exp (meta/exp->view (:_source exp))]]
+       [:div.exp [meta/exp->view (:_source exp)]]]
       (:h6 "Loading"))))

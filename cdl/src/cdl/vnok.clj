@@ -166,6 +166,7 @@
   (s/merge
     ::vnok-common
     (s/keys :req-un [:vnok.PE.v1-v10/date :vnok.PE.v1-v10/examination-date
+
                      :vnok.PE.v1-v10/is-done :vnok.PE.v1-v10/not-done-reason
                      :vnok.PE.v1-v10/has-deviations
                      :vnok.PE.v1-v10/deviations])))

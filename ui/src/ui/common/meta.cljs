@@ -140,7 +140,25 @@
         ["ДАТА ЗАВЕРШЕНИЯ" :stop-date]]])])
 
 (defmethod exp->view "vnok/PE.v2-v10" [exp]
-  [:h1 "vnok/PE.v2-v10"])
+  [:div
+   [map->table exp [["ДАТА ВИЗИТА" :date]
+                    ["ДАТА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ" :examination-date]
+                    ["Выполнено" :is-done]
+                    ["БЫЛИ ЛИ ОБНАРУЖЕНЫ ОТКЛОНЕНИЯ ОТ НОРМЫ?" :has-deviations]]]
+   [:table
+    [:thead
+     [:tr
+      [:th "ФИЗИКАЛЬНОЕ ОБСЛЕДОВАНИЕ"]]]]
+   (for [[idx rec] (map-indexed vector (:deviations exp))]
+     ^{:key idx}
+     [map->table
+       rec
+       [["Система органов" :organ-system]
+        ["Клиническая значимость (в случае отклонения от нормы)" :is-important]
+        ["Комментарии (в случае отклонения от нормы)" :comment]]])])
 
 (defmethod exp->view "vnok/UV" [exp]
-  [:h1 "vnok/UV"])
+  (let [field-names [["ДАТА ВИЗИТА" :date]
+                     ["ПРИЧИНА НЕЗАПЛАНИРОВАННОГО ВИЗИТА" :reason]
+                     ["Комментарии" :comment]]]
+    [map->table exp field-names]))
