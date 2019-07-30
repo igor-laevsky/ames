@@ -72,8 +72,7 @@
            (string/trim
              (str
                (jp/at-path
-                 "$.
-                 d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
+                 "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
                  inp)
                " "
                (jp/at-path
@@ -166,7 +165,6 @@
   (s/merge
     ::vnok-common
     (s/keys :req-un [:vnok.PE.v1-v10/date :vnok.PE.v1-v10/examination-date
-
                      :vnok.PE.v1-v10/is-done :vnok.PE.v1-v10/not-done-reason
                      :vnok.PE.v1-v10/has-deviations
                      :vnok.PE.v1-v10/deviations])))

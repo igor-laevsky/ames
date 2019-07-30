@@ -1,5 +1,4 @@
 (ns ui.common.meta
-
   (:require [clojure.string]))
 
 ;;;
