@@ -5,11 +5,7 @@
             [clojure.data.json :as js]
             [clojure.java.io :as io]
 
-            [cdl.common :as common])
-  (:import (sun.reflect.generics.visitor Visitor)))
-
-;; Returns s if it's a string or nil otherwise.
-(defn- is-str [s] (if (string? s) s nil))
+            [cdl.common :as common :refer [is-str]]))
 
 (defprotocol Field
   "Basic functionality implemented by the each field type."

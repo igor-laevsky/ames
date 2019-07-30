@@ -17,12 +17,6 @@
 (defmulti get-exp-spec :type)
 
 (defn dispatch-parser [json] (get-in json [:d :FormData :SectionList 0 :ID]))
-(defmulti parse-exp-from-json dispatch-parser)
-(defmethod parse-exp-from-json :default [j]
-  (throw (ex-info
-           (str "Unable to find parser for a given exp.")
-           {:orig-id (get-in j [:d :FormData :SectionList 0 :ID])})))
-
 
 ;; Helper routines for specs reused across different experiments
 ;;
@@ -37,8 +31,7 @@
 (def race-decode {"1" "Европеоидная"
                   "2" "Монголоидная"
                   "3" "Негроидная"
-                  "4" "Другое"
-                  "" ""})
+                  "4" "Другое"})
 (s/def ::race (set (vals race-decode)))
 
 ; TODO: Can do better than this
@@ -77,13 +70,11 @@
     empty-date-str-gen))
 
 (def yes-no-decode {"Y" "Да"
-                    "N" "Нет"
-                    "" ""})
+                    "N" "Нет"})
 (s/def ::yes-no (set (vals yes-no-decode)))
 
 (def status-decode {"1" "Разрешилось"
-                    "2" "Продолжается"
-                    "" ""})
+                    "2" "Продолжается"})
 (s/def ::status (set (vals status-decode)))
 
 (def organ-system-decode {"1" "Общее состояние"
@@ -96,8 +87,7 @@
                           "8" "Сердечно-сосудистая система"
                           "9" "Пищеварительная система"
                           "10" "Мочевыделительная система"
-                          "11" "Состояния наружных половых органов"
-                          "" ""})
+                          "11" "Состояния наружных половых органов"})
 (s/def ::organ-system (set (vals organ-system-decode)))
 
 
@@ -129,3 +119,6 @@
 (s/def ::exp-common
   (s/keys :req-un [::type ::visit ::group ::patient
                    ::location ::finished ::verified]))
+
+;; Returns s if it's a string or nil otherwise.
+(defn is-str [s] (if (string? s) s nil))

@@ -1,9 +1,11 @@
 (ns cdl.vnok
-  (:require [cdl.common :as c]
-            [clojure.spec.alpha :as s]
+  (:require [clojure.spec.alpha :as s]
             [json-path :as jp]
             [clojure.test :as test]
-            [clojure.string :as string]))
+            [clojure.string :as ss]
+
+            [cdl.common :as c]
+            [cdl.lang :refer :all]))
 
 (def exp-types (->>
                  ["DEMO" "MH" "MD" "PE.v1" "PE.v2-v10" "UV" "VS" "AE"]
@@ -59,54 +61,6 @@
              :vnok.DEMO/race
              :vnok.DEMO/other])))
 
-(defmethod c/parse-exp-from-json 264 [inp]
-  (merge
-    (parser-common inp)
-    {:type "vnok/DEMO"
-     :date
-           (jp/at-path
-             "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
-             inp)
-
-     :agr-datetime
-           (string/trim
-             (str
-               (jp/at-path
-                 "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
-                 inp)
-               " "
-               (jp/at-path
-                 "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
-                 inp)))
-
-     :birthday
-           (jp/at-path
-             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value"
-             inp)
-
-     :age
-           (jp/at-path
-             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[1].ItemList[1].Value"
-             inp)
-
-     :gender
-           (c/gender-decode
-             (jp/at-path
-               "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[2].ItemList[1].Value"
-               inp))
-
-     :race
-           (c/race-decode
-             (jp/at-path
-               "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[4].ItemList[1].Value"
-               inp))
-
-     :other
-           (jp/at-path
-             "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[5].ItemList[1].Value"
-             inp)
-     }))
-
 ; Screening visit medical history (MD)
 (s/def :vnok.MD/has-records ::c/yes-no)
 (s/def :vnok.MD/condition string?)
@@ -124,25 +78,6 @@
     (s/keys :req-un
             [:vnok.MD/has-records
              :vnok.MD/records])))
-
-(defmethod c/parse-exp-from-json 205 [inp]
-  (merge
-    (parser-common inp)
-    {:type "vnok/MD"
-     :has-records
-           (c/yes-no-decode
-             (jp/at-path
-               "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
-               inp))
-     :records
-           (mapv
-             #(hash-map
-                :condition (jp/at-path "$.RowList[0].ItemList[1].Value" %)
-                :start-date (jp/at-path "$.RowList[1].ItemList[1].Value" %)
-                :status (c/status-decode (jp/at-path "$.RowList[2].ItemList[1].Value" %))
-                :stop-date (jp/at-path "$.RowList[4].ItemList[1].Value" %))
-             (jp/at-path "$.d.FormData.SectionList[2].ItemGroupList" inp))
-     }))
 
 ; V2-V10 Physical examination (PE.v2-v10)
 
@@ -169,48 +104,6 @@
                      :vnok.PE.v1-v10/has-deviations
                      :vnok.PE.v1-v10/deviations])))
 
-(defmethod c/parse-exp-from-json 265 [inp]
-  (merge
-    (parser-common inp)
-    {:type "vnok/PE.v2-v10"
-     :date (jp/at-path
-             "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
-             inp)
-     :examination-date
-           (string/trim
-             (str
-               (jp/at-path
-                 "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
-                 inp)
-               " "
-               (jp/at-path
-                 "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value"
-                 inp)))
-     :is-done
-           (string/blank?
-             (jp/at-path
-               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[0].Value"
-               inp))
-     :not-done-reason
-           (jp/at-path
-             "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[2].Value"
-             inp)
-     :has-deviations
-           (c/yes-no-decode
-             (jp/at-path
-               "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value"
-               inp))
-     :deviations
-           (mapv
-             #(hash-map
-                :organ-system (c/organ-system-decode
-                                (jp/at-path "$.RowList[0].ItemList[0].Value" %))
-                :is-important (c/yes-no-decode
-                                (jp/at-path "$.RowList[0].ItemList[1].Value" %))
-                :comment (jp/at-path "$.RowList[0].ItemList[2].Value" %))
-             (next (jp/at-path "$.d.FormData.SectionList[3].ItemGroupList" inp)))
-     }))
-
 ; Unplanned visit Reason (UV)
 (s/def :vnok.UV/date ::c/date-time-str-or-nil)
 (def uv-reason-decode {"1" "НЯ/СНЯ", "2" "Другое", "" ""})
@@ -222,18 +115,129 @@
     ::vnok-common
     (s/keys :req-un [:vnok.UV/date :vnok.UV/reason :vnok.UV/comment])))
 
-(defmethod c/parse-exp-from-json 263 [inp]
-  (merge
-    (parser-common inp)
-    {:type "vnok/UV"
-     :date (jp/at-path
-             "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
-             inp)
-     :reason
-           (uv-reason-decode
-             (jp/at-path
-               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[0].Value"
-               inp))
-     :comment (jp/at-path
-               "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[3].ItemList[1].Value"
-               inp)}))
+;;
+;; New way for defining exps
+;;
+
+(def visit-names ["se.SCR" "se.SCR1" "se.V1" "se.V2" "se.V3" "se.V4" "se.V5"
+                  "se.V6" "se.V7" "se.V8" "se.V9" "se.V10" "se.V11" "se.V12"
+                  "se.UV" "se.CM" "se.PR" "se.AE" "se.DV"])
+
+
+(deftype LocationFieldType [loc]
+  Field
+  (from-json [_ inp]
+    (some-> loc (jp/at-path inp) (c/is-str) (ss/trim) (not-empty) (subs 1)))
+  (get-spec-form [_] `(s/and string? (complement empty?)))
+  (get-es-mapping [_] {:type "keyword"}))
+
+(deftype StatusFieldType [loc true-vals]
+  Field
+  (from-json [_ inp]
+    (let [res (jp/at-path loc inp)]
+      (when res
+        (-> res (true-vals) (some?)))))
+  (get-spec-form [_] `boolean?)
+  (get-es-mapping [_] {:type "boolean"}))
+
+(def common-fields
+  {:visit (->Enumeration "$.d.StudyEventOID"
+                         (zipmap visit-names
+                                 (map (partial str "vnok/") visit-names)))
+   :location (->LocationFieldType "$.d.LocationOID")
+   :group (->Str "$.d.StudyEventRepeatKey")
+   :finished (->StatusFieldType "$.d.State" #{6 8})
+   :verified (->StatusFieldType "$.d.State" #{7 8})
+   :patient (map->Composite {:name (->Str "$.d.SubjectKey")
+                             :birthday (->Date "$.d.SubjectBrthDate")
+                             :gender (->Enumeration "$.d.SubjectSex"
+                                                    c/gender-decode)
+                             :rand-num (->Str "$.context.rand-num")})})
+
+(def exps
+  [
+   {:name "vnok.DEMO"
+    :raw-json-id 264
+    :fields
+    (map->Composite
+      (merge
+        common-fields
+        {:type (->ConstantVal "vnok.DEMO")
+         :date (->Date "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value")
+         :agr-datetime (->DateTime
+                         "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
+                         "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value")
+         :birthday (->Date "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value")
+         :age (->Str "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[1].ItemList[1].Value")
+         :gender (->Enumeration
+                   "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[2].ItemList[1].Value"
+                   c/gender-decode)
+         :race (->Enumeration
+                 "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[4].ItemList[1].Value"
+                 c/race-decode)
+         :other (->Text "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[5].ItemList[1].Value")
+         }))}
+
+   {:name "vnok.MD"
+    :raw-json-id 205
+    :fields
+    (map->Composite
+      (merge
+        common-fields
+        {:type (->ConstantVal "vnok.MD")
+         :has-records (->Enumeration "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
+                                     c/yes-no-decode)
+         :records
+         (->Array
+           "$.d.FormData.SectionList[2].ItemGroupList"
+           (map->Composite
+             {:condition (->Text "$.RowList[0].ItemList[1].Value")
+              :status (->Enumeration "$.RowList[2].ItemList[1].Value"
+                                     c/status-decode)
+              :start-date (->Date "$.RowList[1].ItemList[1].Value")
+              :stop-date (->Date "$.RowList[4].ItemList[1].Value")})
+           false)}
+        ))}
+
+   {:name "vnok.PE.v2-v10"
+    :raw-json-id 265
+    :fields
+    (map->Composite
+      (merge
+        common-fields
+        {:type (->ConstantVal "vnok.PE.v2-v10")
+         :date (->Date "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value")
+         :examination-date (->DateTime "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[1].Value"
+                                       "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value")
+         :is-done (->Bool "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[0].Value")
+         :not-done-reason (->Text "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[2].Value")
+         :has-deviations (->Enumeration
+                           "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value"
+                           c/yes-no-decode)
+         :deviations
+         (->Array
+           "$.d.FormData.SectionList[3].ItemGroupList"
+           (map->Composite
+             {:organ-system (->Enumeration
+                              "$.RowList[0].ItemList[0].Value"
+                              c/organ-system-decode)
+              :is-important (->Enumeration
+                              "$.RowList[0].ItemList[1].Value"
+                              c/yes-no-decode)
+              :comment (->Text "$.RowList[0].ItemList[2].Value")})
+           true)}))}
+
+   {:name "vnok.UV"
+    :raw-json-id 263
+    :fields
+    (map->Composite
+      (merge
+        common-fields
+        {:type (->ConstantVal "vnok.UV")
+         :date (->Date "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value")
+         :reason (->Enumeration
+                   "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[0].Value"
+                   {"1" "НЯ/СНЯ", "2" "Другое", "" ""})
+         :comment (->Text "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[3].ItemList[1].Value")}))}])
+
+(def-json-parser parse-exp-from-json exps)
