@@ -103,6 +103,23 @@
   (get-es-mapping [this]
     {:properties (map-vals this get-es-mapping)}))
 
+;; Helper for the def-json-parser.
+;; Returns form which defines multimethod case for a given exp.
+(defn- get-exp-parser [parser-name exp]
+  `(defmethod ~parser-name ~(:raw-json-id exp) [~'inp]
+     (from-json ~(:fields exp) ~'inp)))
+
+;; Generate json parser from a list of exp descriptions.
+(defmacro def-json-parser [parser-name study]
+  (let [exps (eval study)]
+    `(do
+       (defmulti ~parser-name common/dispatch-parser)
+       (defmethod ~parser-name :default [~'j]
+         (throw (ex-info
+                  (str "Unable to find parser for a given exp.")
+                  {:orig-id (get-in ~'j [:d :FormData :SectionList 0 :ID])})))
+       ~@(for [e exps] (get-exp-parser parser-name e)))))
+
 ;; Transforms result of the 'get-spec-form' into a list of spec defs.
 (defn to-spec-defs [kw spec-form]
   (assert (and (keyword? kw) (namespace kw)) "kw must be a namespaced keyword")
@@ -115,29 +132,15 @@
         `(s/def ~kw (s/keys :opt-un [~@(keys named-specs)]))))
     [`(s/def ~kw ~spec-form)]))
 
-;; Helper for the def-json-parser.
-;; Returns form which defines multimethod case for a given exp.
-(defn- get-exp-parser [parser-name exp]
-  `(defmethod ~parser-name ~(:raw-json-id exp) [~'inp]
-     (from-json ~(:fields exp) ~'inp)))
-
-;; Generate json parser from a list of exp descriptions.
-(defmacro def-json-parser [parser-name f]
-  (let [exps (eval f)]
-    `(do
-       (defmulti ~parser-name common/dispatch-parser)
-       (defmethod ~parser-name :default [~'j]
-         (throw (ex-info
-                  (str "Unable to find parser for a given exp.")
-                  {:orig-id (get-in ~'j [:d :FormData :SectionList 0 :ID])})))
-       ~@(for [e exps] (get-exp-parser parser-name e)))))
-
-;; Defines all specs required for a set of exps.
-(defmacro def-exp-specs [root-name f]
-  (assert (string? root-name) "root-name must be a string")
-  (let [exps (eval f)
-        m-name (symbol (str *ns*) (str "get-" root-name "-spec"))
-        get-spec-name (fn [e] (keyword root-name (name (:name e))))]
+;; Defines a spec named 'spec-kw' which will verify a single exp accroding
+;; with the study description.
+(defmacro def-exp-specs [spec-kw study]
+  (assert (and (keyword? spec-kw) (namespace spec-kw))
+          "spec-name must be a namespaced keyword")
+  (let [exps (eval study)
+        m-name (gensym (name spec-kw))
+        get-spec-name (fn [e] (keyword (str (namespace spec-kw) "." (name spec-kw))
+                                       (name (:name e))))]
     `(do
        ; s/def all of the specs
        ~@(for [e exps
@@ -148,4 +151,5 @@
        (defmulti ~m-name :type)
        ~@(for [e exps]
            `(defmethod ~m-name ~(:name e) [~'_]
-              (s/get-spec ~(get-spec-name e)))))))
+              (s/get-spec ~(get-spec-name e))))
+       (s/def ~spec-kw (s/multi-spec ~m-name :type)))))

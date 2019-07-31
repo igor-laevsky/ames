@@ -128,4 +128,4 @@
 
 (def-json-parser parse-exp-from-json exps)
 
-(def-exp-specs "exp" exps)
+(def-exp-specs ::exp exps)
