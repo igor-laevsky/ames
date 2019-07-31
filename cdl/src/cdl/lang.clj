@@ -87,7 +87,7 @@
 (defn- remove-empty-keys [m]
   (into (empty m) (remove (comp nil? val) m)))
 
-;; These intentionally drop the data type of the input map. This is neccessary
+;; These intentionally drop the data type of the input map. This is necessary
 ;; to simplify their behaviour on records.
 (defn- map-vals [m f] (into {} (map (fn [[k v]] [k (f v)]) m)))
 (defn- map-keys [m f] (into {} (map (fn [[k v]] [(f k) v]) m)))
@@ -110,10 +110,10 @@
      (from-json ~(:fields exp) ~'inp)))
 
 ;; Generate json parser from a list of exp descriptions.
-(defmacro def-json-parser [parser-name study]
+(defmacro def-json-parser [parser-name dispatcher study]
   (let [exps (eval study)]
     `(do
-       (defmulti ~parser-name common/dispatch-parser)
+       (defmulti ~parser-name ~dispatcher)
        (defmethod ~parser-name :default [~'j]
          (throw (ex-info
                   (str "Unable to find parser for a given exp.")

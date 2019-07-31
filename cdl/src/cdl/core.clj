@@ -1,6 +1,5 @@
 (ns cdl.core
-  (:require [cdl.common :as common]
-            [cdl.vnok :as vnok]
+  (:require [cdl.vnok :as vnok]
             [clojure.spec.alpha :as s]))
 
 ;;; This namespace defines public interface for the set of trials.
@@ -12,7 +11,7 @@
 (defn can-parse? [json]
   (contains?
     (methods vnok/parse-exp-from-json)
-    (common/dispatch-parser json)))
+    (vnok/dispatch-parser json)))
 
 ; Takes a json object and returns experiment or raises an exception.
 (defn json->exp [json]

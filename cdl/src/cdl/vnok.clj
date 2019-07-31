@@ -126,6 +126,7 @@
                    {"1" "НЯ/СНЯ", "2" "Другое", "" ""})
          :comment (->Text "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[3].ItemList[1].Value")}))}])
 
-(def-json-parser parse-exp-from-json exps)
+(defn dispatch-parser [json] (get-in json [:d :FormData :SectionList 0 :ID]))
+(def-json-parser parse-exp-from-json dispatch-parser exps)
 
 (def-exp-specs ::exp exps)
