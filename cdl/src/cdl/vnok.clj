@@ -18,7 +18,8 @@
   Field
   (from-json [_ inp]
     (some-> loc (jp/at-path inp) (utils/is-str) (ss/trim) (not-empty) (subs 1)))
-  (get-spec-form [_] `(s/and string? (complement empty?)))
+  (get-spec-form [_ kw]
+    [`(s/def ~kw (s/and string? (complement empty?)))])
   (get-es-mapping [_] {:type "keyword"}))
 
 (deftype StatusFieldType [loc true-vals]
@@ -27,7 +28,7 @@
     (let [res (jp/at-path loc inp)]
       (when res
         (-> res (true-vals) (some?)))))
-  (get-spec-form [_] `boolean?)
+  (get-spec-form [_ kw] [`(s/def ~kw boolean?)])
   (get-es-mapping [_] {:type "boolean"}))
 
 (defn yes-no-field [loc] (->Enumeration loc utils/yes-no-decode))

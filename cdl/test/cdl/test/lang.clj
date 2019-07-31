@@ -7,8 +7,10 @@
 (deftest constant-str-test
   (let [f (l/->ConstantVal "test-val")]
     (is (= "test-val" (l/from-json f {:a 1 :b 2})))
-    (is (s/valid? (eval (l/get-spec-form f)) "test-val"))
-    (is (not (s/valid? (eval (l/get-spec-form f)) "asd")))
+
+    (eval  (l/get-spec-form f ::str-test))
+    (is (s/valid? ::str-test "test-val"))
+    (is (not (s/valid? ::str-test "asd")))
     (is (= {:type "keyword"} (l/get-es-mapping f)))))
 
 (deftest boolean-test
@@ -17,12 +19,15 @@
     (is (l/from-json f {:val ""}))
     (is (not (l/from-json f {:val 1})))
     (is (not (l/from-json f {:val "false"})))
-    (is (s/valid? (eval (l/get-spec-form f)) true))
-    (is (s/valid? (eval (l/get-spec-form f)) false))
-    (is (not (s/valid? (eval (l/get-spec-form f)) "asd")))
-    (is (not (s/valid? (eval (l/get-spec-form f)) "")))
-    (is (not (s/valid? (eval (l/get-spec-form f)) nil)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) '())))
+
+    (eval  (l/get-spec-form f ::boolean-test))
+    (is (s/valid? ::boolean-test true))
+    (is (s/valid? ::boolean-test false))
+    (is (not (s/valid? ::boolean-test "asd")))
+    (is (not (s/valid? ::boolean-test "")))
+    (is (not (s/valid? ::boolean-test nil)))
+    (is (not (s/valid? ::boolean-test '())))
+
     (is (= {:type "boolean"} (l/get-es-mapping f)))))
 
 (deftest str-test
@@ -32,12 +37,15 @@
     (is (nil? (l/from-json f {:val nil})))
     (is (nil? (l/from-json f {:val ""})))
     (is (nil? (l/from-json f {:not-val "not-test"})))
-    (is (s/valid? (eval (l/get-spec-form f)) "sasd"))
-    (is (not (s/valid? (eval (l/get-spec-form f)) :asdasd)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) "")))
-    (is (not (s/valid? (eval (l/get-spec-form f)) nil)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) [])))
-    (is (not (s/valid? (eval (l/get-spec-form f)) true)))
+
+    (eval  (l/get-spec-form f ::str-test))
+    (is (s/valid? ::str-test "sasd"))
+    (is (not (s/valid? ::str-test :asdasd)))
+    (is (not (s/valid? ::str-test "")))
+    (is (not (s/valid? ::str-test nil)))
+    (is (not (s/valid? ::str-test [])))
+    (is (not (s/valid? ::str-test true)))
+
     (is (= {:type "keyword"} (l/get-es-mapping f)))))
 
 (deftest text-test
@@ -47,11 +55,14 @@
     (is (nil? (l/from-json f {:val nil})))
     (is (nil? (l/from-json f {:val ""})))
     (is (nil? (l/from-json f {:not-val "not-test"})))
-    (is (s/valid? (eval (l/get-spec-form f)) "sasd"))
-    (is (not (s/valid? (eval (l/get-spec-form f)) :asdasd)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) "")))
-    (is (not (s/valid? (eval (l/get-spec-form f)) nil)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) [])))
+
+    (eval  (l/get-spec-form f ::text-test))
+    (is (s/valid? ::text-test "sasd"))
+    (is (not (s/valid? ::text-test :asdasd)))
+    (is (not (s/valid? ::text-test "")))
+    (is (not (s/valid? ::text-test nil)))
+    (is (not (s/valid? ::text-test [])))
+
     (is (= {:type "text"} (l/get-es-mapping f)))))
 
 (deftest enum-test
@@ -62,12 +73,14 @@
     (is (nil? (l/from-json f {:val 1 :not-val "not-test"})))
     (is (= "Y" (l/from-json f {:val "1" :not-val "not-test"})))
     (is (= "N" (l/from-json f {:val "2" :not-val "not-test"})))
-    (is (s/valid? (eval (l/get-spec-form f)) "Y"))
-    (is (s/valid? (eval (l/get-spec-form f)) "N"))
-    (is (not (s/valid? (eval (l/get-spec-form f)) :asdasd)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) "")))
-    (is (not (s/valid? (eval (l/get-spec-form f)) nil)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) [])))
+
+    (eval  (l/get-spec-form f ::enum-test))
+    (is (s/valid? ::enum-test "Y"))
+    (is (s/valid? ::enum-test "N"))
+    (is (not (s/valid? ::enum-test :asdasd)))
+    (is (not (s/valid? ::enum-test "")))
+    (is (not (s/valid? ::enum-test nil)))
+    (is (not (s/valid? ::enum-test [])))
     (is (= {:type "text"} (l/get-es-mapping f)))))
 
 (deftest date-test
@@ -76,13 +89,15 @@
     (is (nil? (l/from-json f {:not-val "not-test"})))
     (is (nil? (l/from-json f {:val 1})))
     (is (nil? (l/from-json f {:val ""})))
-    (is (s/valid? (eval (l/get-spec-form f)) "2019-08-12"))
-    (is (s/valid? (eval (l/get-spec-form f)) "2019-08-12 16:43"))
-    (is (s/valid? (eval (l/get-spec-form f)) "2043"))
-    (is (not (s/valid? (eval (l/get-spec-form f)) "")))
-    (is (not (s/valid? (eval (l/get-spec-form f)) :asdasd)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) nil)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) [])))
+
+    (eval  (l/get-spec-form f ::date-test))
+    (is (s/valid? ::date-test "2019-08-12"))
+    (is (s/valid? ::date-test "2019-08-12 16:43"))
+    (is (s/valid? ::date-test "2043"))
+    (is (not (s/valid? ::date-test "")))
+    (is (not (s/valid? ::date-test :asdasd)))
+    (is (not (s/valid? ::date-test nil)))
+    (is (not (s/valid? ::date-test [])))
     (is (= {:type "date"
             :format "yyyy-MM-dd HH:mm|yyyy-MM-dd|yyyy-MM|yyyy"} (l/get-es-mapping f)))))
 
@@ -90,16 +105,17 @@
   (let [f (l/->DateTime "$.date" "$.time")]
     (is (= "2019-08-12" (l/from-json f {:date "2019-08-12" :time ""})))
     (is (= "2019-08-12 16:43" (l/from-json f {:date "2019-08-12" :time "16:43"})))
-
     (is (nil? (l/from-json f {:not-val "not-test"})))
     (is (nil? (l/from-json f {:date 1 :time 123})))
-    (is (s/valid? (eval (l/get-spec-form f)) "2019-08-12"))
-    (is (s/valid? (eval (l/get-spec-form f)) "2019-08-12 16:43"))
-    (is (s/valid? (eval (l/get-spec-form f)) "2043"))
-    (is (not (s/valid? (eval (l/get-spec-form f)) "")))
-    (is (not (s/valid? (eval (l/get-spec-form f)) :asdasd)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) nil)))
-    (is (not (s/valid? (eval (l/get-spec-form f)) [])))
+
+    (eval  (l/get-spec-form f ::date-time-test))
+    (is (s/valid? ::date-time-test "2019-08-12"))
+    (is (s/valid? ::date-time-test "2019-08-12 16:43"))
+    (is (s/valid? ::date-time-test "2043"))
+    (is (not (s/valid? ::date-time-test "")))
+    (is (not (s/valid? ::date-time-test :asdasd)))
+    (is (not (s/valid? ::date-time-test nil)))
+    (is (not (s/valid? ::date-time-test [])))
     (is (= {:type "date"
             :format "yyyy-MM-dd HH:mm|yyyy-MM-dd|yyyy-MM|yyyy"} (l/get-es-mapping f)))))
 
@@ -115,13 +131,15 @@
     (is (= nil
            (l/from-json f {:arr [{:val "no"} {:val "no"} {:val "wrong"}]})))
 
-    (is (s/valid? (eval (l/get-spec-form f)) ["Y" "Y" "Y"]))
-    (is (s/valid? (eval (l/get-spec-form f)) ["Y" "Y" "N" "Y"]))
-    (is (not (s/valid? (eval (l/get-spec-form f)) ["Y" "Y" "N" nil])))
-    (is (not (s/valid? (eval (l/get-spec-form f)) ["Y" "Y" "N" "wrong"])))
-    (is (not (s/valid? (eval (l/get-spec-form f)) ["Y" "Y" "N" ""])))
-    (is (not (s/valid? (eval (l/get-spec-form f)) [])))
-    (is (not (s/valid? (eval (l/get-spec-form f)) nil)))
+    (eval  (l/get-spec-form f ::arr-test))
+
+    (is (s/valid? ::arr-test ["Y" "Y" "Y"]))
+    (is (s/valid? ::arr-test ["Y" "Y" "N" "Y"]))
+    (is (not (s/valid? ::arr-test ["Y" "Y" "N" nil])))
+    (is (not (s/valid? ::arr-test ["Y" "Y" "N" "wrong"])))
+    (is (not (s/valid? ::arr-test ["Y" "Y" "N" ""])))
+    (is (not (s/valid? ::arr-test [])))
+    (is (not (s/valid? ::arr-test nil)))
     (is (= {:type "text"} (l/get-es-mapping f)))))
 
 (deftest composite-test
@@ -150,7 +168,7 @@
            (l/from-json f {:arr 12 :str-val "" :bool-val ""})))
     (is (= nil (l/from-json f2 {:arr 12 :str-val ""})))
 
-    (eval (l/to-spec-defs ::f-spec (l/get-spec-form f)))
+    (eval (l/get-spec-form f ::f-spec))
 
     (is (not (s/valid? ::f-spec [])))
     (is (not (s/valid? ::f-spec nil)))
@@ -179,11 +197,16 @@
 
 (deftest nested-composite-test
   (let [f (l/map->Composite
-            {:test-arr (l/->Array "$.arr" (l/->Enumeration "$.val" {"1" "Y" "2" "N"}) false)
+            {:test-arr (l/->Array "$.arr"
+                                  (l/->Enumeration "$.val" {"1" "Y" "2" "N"})
+                                  false)
              :test-str (l/->Str "$.str-val")
              :test-bool (l/->Bool "$.bool-val")
              :const (l/->ConstantVal "exp-type")
-             :composite (l/map->Composite {:nest-str (l/->Str "$.test-str")})})]
+             :composite (l/map->Composite {:nest-str (l/->Str "$.test-str")})
+             :comp-arr (l/->Array "$.comp-arr"
+                                  (l/map->Composite {:nest-str (l/->Str "$.nest-str")})
+                                  false)})]
     (is (= {:test-arr ["Y" "N" "Y"]
             :test-str "test-str"
             :const "exp-type"
@@ -196,9 +219,15 @@
             :const "exp-type"}
            (l/from-json f {:arr [{:val "1"} {:val "2"} {:val "1"} {:val "wrong"}]
                            :str-val "test-str"})))
+    (is (= {:test-arr ["Y" "N" "Y"]
+            :test-str "test-str"
+            :const "exp-type"
+            :comp-arr [{:nest-str "1"} {:nest-str "2"}]}
+           (l/from-json f {:arr [{:val "1"} {:val "2"} {:val "1"} {:val "wrong"}]
+                           :str-val "test-str"
+                           :comp-arr [{:something 1} {:nest-str "1"} {:nest-str "2"}]})))
 
-    ;(clojure.pprint/pprint (l/to-spec-defs ::nest-f-spec (l/get-spec-form f)))
-    (eval (l/to-spec-defs ::nest-f-spec (l/get-spec-form f)))
+    (eval (l/get-spec-form f ::nest-f-spec))
 
     (is (not (s/valid? ::nest-f-spec [])))
     (is (not (s/valid? ::nest-f-spec nil)))
@@ -221,6 +250,8 @@
                                  :test-str "asd"
                                  :test-bool true
                                  :composite {:unknown true}}))
+    (is (s/valid? ::nest-f-spec {:comp-arr [{:nest-str "1"} {:nest-str "2"}]}))
+    (is (not (s/valid? ::nest-f-spec {:comp-arr [{:nest-str 1} {:nest-str "2"}]})))
     (is (not (s/valid? ::nest-f-spec {:unknown "asd"
                                       :test-arr ["Y" "Y" "N"]
                                       :test-str "asd"
@@ -236,5 +267,6 @@
                          :test-str {:type "keyword"}
                          :test-bool {:type "boolean"}
                          :const {:type "keyword"}
-                         :composite {:properties {:nest-str {:type "keyword"}}}}}
+                         :composite {:properties {:nest-str {:type "keyword"}}}
+                         :comp-arr {:properties {:nest-str {:type "keyword"}}}}}
            (l/get-es-mapping f)))))

@@ -12,45 +12,43 @@
   (from-json [this inp]
     "Parse this field from the raw json. Returns field value.
      Returns nil when unable to parse.")
-  (get-spec-form [this]
-    "Returns the spec form for this field or a map from the spec name
-     to it's form in case if (s/keys) mapping is neccessary.")
+  (get-spec-form [this kw] "Returns vector of spec definitions `(s/def ...).")
   (get-es-mapping [this] "Returns ES mapping for this field."))
 
 (deftype ConstantVal [value]
   Field
   (from-json [_ inp] value)
-  (get-spec-form [_] `#{~value})
+  (get-spec-form [_ kw] [`(s/def ~kw #{~value})])
   (get-es-mapping [_] {:type "keyword"}))
 
 (deftype Bool [loc]
   Field
   (from-json [_ inp] (some-> loc (jp/at-path inp) (str) (ss/trim) (ss/blank?)))
-  (get-spec-form [_] `boolean?)
+  (get-spec-form [_ kw] [`(s/def ~kw boolean?)])
   (get-es-mapping [_] {:type "boolean"}))
 
 (deftype Str [loc]
   Field
   (from-json [_ inp] (some-> loc (jp/at-path inp) (is-str) (ss/trim) (not-empty)))
-  (get-spec-form [_] `(s/and string? (complement empty?)))
+  (get-spec-form [_ kw] [`(s/def ~kw (s/and string? (complement empty?)))])
   (get-es-mapping [_] {:type "keyword"}))
 
 (deftype Text [loc]
   Field
   (from-json [_ inp] (some-> loc (jp/at-path inp) (is-str) (ss/trim) (not-empty)))
-  (get-spec-form [_] `(s/and string? (complement empty?)))
+  (get-spec-form [_ kw] [`(s/def ~kw (s/and string? (complement empty?)))])
   (get-es-mapping [_] {:type "text"}))
 
 (deftype Enumeration [loc key->val]
   Field
   (from-json [_ inp] (some-> loc (jp/at-path inp) key->val))
-  (get-spec-form [_] `#{~@(set (vals key->val))})
+  (get-spec-form [_ kw] [`(s/def ~kw #{~@(set (vals key->val))})])
   (get-es-mapping [_] {:type "text"}))
 
 (deftype Date [loc]
   Field
   (from-json [_ inp] (some-> loc (jp/at-path inp) (is-str) (ss/trim) (not-empty)))
-  (get-spec-form [_] `utils/date-time-str?)
+  (get-spec-form [_ kw] [`(s/def ~kw utils/date-time-str?)])
   (get-es-mapping [_] {:type "date"
                        :format "yyyy-MM-dd HH:mm|yyyy-MM-dd|yyyy-MM|yyyy"}))
 
@@ -62,7 +60,7 @@
              (some-> time-loc (jp/at-path inp) (is-str) (ss/trim)))
         (ss/trim)
         (not-empty)))
-  (get-spec-form [_] `utils/date-time-str?)
+  (get-spec-form [_ kw] [`(s/def ~kw utils/date-time-str?)])
   (get-es-mapping [_] {:type "date"
                        :format "yyyy-MM-dd HH:mm|yyyy-MM-dd|yyyy-MM|yyyy"}))
 
@@ -77,9 +75,12 @@
              (mapv #(from-json element-type %))
              (filter (complement nil?))
              (not-empty)))))
-  (get-spec-form [_] `(s/and
-                        (s/coll-of ~(get-spec-form element-type))
-                        (complement empty?)))
+  (get-spec-form [_ kw]
+    (let [element-spec-kw (keyword (str (namespace kw) "." (name kw)) "arr-el")]
+      (conj
+        (vec (get-spec-form element-type element-spec-kw))
+        `(s/def ~kw (s/and (s/coll-of ~element-spec-kw)
+                           (complement empty?))))))
   ; Every field in ES is an array anyway, so no transformation is needed.
   (get-es-mapping [_] (get-es-mapping element-type)))
 
@@ -98,8 +99,13 @@
     (-> (map-vals this #(from-json % inp))
         (remove-empty-keys)
         (not-empty)))
-  (get-spec-form [this]
-    (map-vals this get-spec-form))
+  (get-spec-form [this kw]
+    (let [named-specs (map-keys this
+                                #(keyword (str (namespace kw) "." (name kw))
+                                          (name %)))]
+      (conj
+        (vec (mapcat (fn [[k v]] (get-spec-form v k)) named-specs))
+        `(s/def ~kw (s/keys :opt-un [~@(keys named-specs)])))))
   (get-es-mapping [this]
     {:properties (map-vals this get-es-mapping)}))
 
@@ -120,18 +126,6 @@
                   {:orig-id (get-in ~'j [:d :FormData :SectionList 0 :ID])})))
        ~@(for [e exps] (get-exp-parser parser-name e)))))
 
-;; Transforms result of the 'get-spec-form' into a list of spec defs.
-(defn to-spec-defs [kw spec-form]
-  (assert (and (keyword? kw) (namespace kw)) "kw must be a namespaced keyword")
-  (if (map? spec-form)
-    (let [named-specs (map-keys spec-form
-                                #(keyword (str (namespace kw) "." (name kw))
-                                          (name %)))]
-      (conj
-        (vec (mapcat (fn [[k v]] (to-spec-defs k v)) named-specs))
-        `(s/def ~kw (s/keys :opt-un [~@(keys named-specs)]))))
-    [`(s/def ~kw ~spec-form)]))
-
 ;; Defines a spec named 'spec-kw' which will verify a single exp accroding
 ;; with the study description.
 (defmacro def-exp-specs [spec-kw study]
@@ -145,7 +139,7 @@
        ; s/def all of the specs
        ~@(for [e exps
                :let [spec-name (get-spec-name e)]]
-           (->> e :fields (get-spec-form) (to-spec-defs spec-name)))
+           (-> e :fields (get-spec-form spec-name)))
 
        ; define multimethod and a root spec
        (defmulti ~m-name :type)

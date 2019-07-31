@@ -1,10 +1,13 @@
 (ns cdl.test.vnok
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as s]
+            [orchestra.spec.test :as st]
             [clojure.data.json :as js]
             [clojure.java.io :as io]
 
             [cdl.core :as c]))
+
+(st/instrument)
 
 (defn read-json-from-file [fname]
   (-> fname
@@ -261,3 +264,6 @@
          :location "01",
          :verified true}
         (read-exp-from-file "vnok/MD.json"))))
+
+(deftest test-pe-validation
+  (is (s/valid? ::c/exp (read-exp-from-file "vnok/PE.v2-v10.json"))))
