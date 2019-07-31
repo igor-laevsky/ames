@@ -1,4 +1,4 @@
-(ns cdl.common
+(ns cdl.utils
   (:require [clojure.spec.alpha :as s]
             [clojure.test.check.generators :as gen]
             [clojure.string :as string]

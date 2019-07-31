@@ -3,7 +3,7 @@
             [clojure.string :as ss]
             [json-path :as jp]
 
-            [cdl.common :as c]
+            [cdl.utils :as utils]
             [cdl.lang :refer :all]))
 
 (def visit-names ["se.SCR" "se.SCR1" "se.V1" "se.V2" "se.V3" "se.V4" "se.V5"
@@ -13,7 +13,7 @@
 (deftype LocationFieldType [loc]
   Field
   (from-json [_ inp]
-    (some-> loc (jp/at-path inp) (c/is-str) (ss/trim) (not-empty) (subs 1)))
+    (some-> loc (jp/at-path inp) (utils/is-str) (ss/trim) (not-empty) (subs 1)))
   (get-spec-form [_] `(s/and string? (complement empty?)))
   (get-es-mapping [_] {:type "keyword"}))
 
@@ -37,7 +37,7 @@
    :patient (map->Composite {:name (->Str "$.d.SubjectKey")
                              :birthday (->Date "$.d.SubjectBrthDate")
                              :gender (->Enumeration "$.d.SubjectSex"
-                                                    c/gender-decode)
+                                                    utils/gender-decode)
                              :rand-num (->Str "$.context.rand-num")})})
 
 (def exps
@@ -57,10 +57,10 @@
          :age (->Str "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[1].ItemList[1].Value")
          :gender (->Enumeration
                    "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[2].ItemList[1].Value"
-                   c/gender-decode)
+                   utils/gender-decode)
          :race (->Enumeration
                  "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[4].ItemList[1].Value"
-                 c/race-decode)
+                 utils/race-decode)
          :other (->Text "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[5].ItemList[1].Value")
          }))}
 
@@ -72,14 +72,14 @@
         common-fields
         {:type (->ConstantVal "vnok.MD")
          :has-records (->Enumeration "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
-                                     c/yes-no-decode)
+                                     utils/yes-no-decode)
          :records
          (->Array
            "$.d.FormData.SectionList[2].ItemGroupList"
            (map->Composite
              {:condition (->Text "$.RowList[0].ItemList[1].Value")
               :status (->Enumeration "$.RowList[2].ItemList[1].Value"
-                                     c/status-decode)
+                                     utils/status-decode)
               :start-date (->Date "$.RowList[1].ItemList[1].Value")
               :stop-date (->Date "$.RowList[4].ItemList[1].Value")})
            false)}
@@ -99,17 +99,17 @@
          :not-done-reason (->Text "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[2].Value")
          :has-deviations (->Enumeration
                            "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value"
-                           c/yes-no-decode)
+                           utils/yes-no-decode)
          :deviations
          (->Array
            "$.d.FormData.SectionList[3].ItemGroupList"
            (map->Composite
              {:organ-system (->Enumeration
                               "$.RowList[0].ItemList[0].Value"
-                              c/organ-system-decode)
+                              utils/organ-system-decode)
               :is-important (->Enumeration
                               "$.RowList[0].ItemList[1].Value"
-                              c/yes-no-decode)
+                              utils/yes-no-decode)
               :comment (->Text "$.RowList[0].ItemList[2].Value")})
            true)}))}
 

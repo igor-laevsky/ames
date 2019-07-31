@@ -5,7 +5,7 @@
             [clojure.data.json :as js]
             [clojure.java.io :as io]
 
-            [cdl.common :as common :refer [is-str]]))
+            [cdl.utils :as utils :refer [is-str]]))
 
 (defprotocol Field
   "Basic functionality implemented by the each field type."
@@ -50,7 +50,7 @@
 (deftype Date [loc]
   Field
   (from-json [_ inp] (some-> loc (jp/at-path inp) (is-str) (ss/trim) (not-empty)))
-  (get-spec-form [_] `common/date-time-str?)
+  (get-spec-form [_] `utils/date-time-str?)
   (get-es-mapping [_] {:type "date"
                        :format "yyyy-MM-dd HH:mm|yyyy-MM-dd|yyyy-MM|yyyy"}))
 
@@ -62,7 +62,7 @@
              (some-> time-loc (jp/at-path inp) (is-str) (ss/trim)))
         (ss/trim)
         (not-empty)))
-  (get-spec-form [_] `common/date-time-str?)
+  (get-spec-form [_] `utils/date-time-str?)
   (get-es-mapping [_] {:type "date"
                        :format "yyyy-MM-dd HH:mm|yyyy-MM-dd|yyyy-MM|yyyy"}))
 

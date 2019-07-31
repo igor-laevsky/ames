@@ -1,5 +1,5 @@
 (ns dev
-  (:require [cdl.common :as c]
+  (:require [cdl.utils :as c]
             [cdl.vnok :as v]
             [cdl.core :as core]
 
