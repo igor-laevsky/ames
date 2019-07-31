@@ -13,12 +13,12 @@
 
 (def creds (-> "creds.edn" io/resource io/reader slurp read-string))
 
-(def locations [1 2 3 4 5 7 8 10 11 12 13 14 17 18 19 23 30 31 32])
+(def locations [1 2 3 4 5 7 8 10 11 12 13 14 17 18 19 23 24 25  26 28 29 30 31 32])
 
 (defn create-system []
   (component/system-map
     :network (network/make-network {:num-threads parallelism
-                                    :rate 2})
+                                    :rate 4})
     :saver (saver/make-elastic-saver {:url "http://127.0.0.1:9200"
                                       :index "vnok"})
     :etl (component/using
