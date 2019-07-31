@@ -6,6 +6,10 @@
             [cdl.utils :as utils]
             [cdl.lang :refer :all]))
 
+;;
+;; Common field types
+;;
+
 (def visit-names ["se.SCR" "se.SCR1" "se.V1" "se.V2" "se.V3" "se.V4" "se.V5"
                   "se.V6" "se.V7" "se.V8" "se.V9" "se.V10" "se.V11" "se.V12"
                   "se.UV" "se.CM" "se.PR" "se.AE" "se.DV"])
@@ -26,6 +30,13 @@
   (get-spec-form [_] `boolean?)
   (get-es-mapping [_] {:type "boolean"}))
 
+(defn yes-no-field [loc] (->Enumeration loc utils/yes-no-decode))
+(defn gender-field [loc] (->Enumeration loc utils/gender-decode))
+
+;;
+;; Study description
+;;
+
 (def common-fields
   {:visit (->Enumeration "$.d.StudyEventOID"
                          (zipmap visit-names
@@ -36,13 +47,11 @@
    :verified (->StatusFieldType "$.d.State" #{7 8})
    :patient (map->Composite {:name (->Str "$.d.SubjectKey")
                              :birthday (->Date "$.d.SubjectBrthDate")
-                             :gender (->Enumeration "$.d.SubjectSex"
-                                                    utils/gender-decode)
+                             :gender (gender-field "$.d.SubjectSex")
                              :rand-num (->Str "$.context.rand-num")})})
 
 (def exps
-  [
-   {:name "vnok.DEMO"
+  [{:name "vnok.DEMO"
     :raw-json-id 264
     :fields
     (map->Composite
@@ -55,9 +64,7 @@
                          "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value")
          :birthday (->Date "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value")
          :age (->Str "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[1].ItemList[1].Value")
-         :gender (->Enumeration
-                   "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[2].ItemList[1].Value"
-                   utils/gender-decode)
+         :gender (gender-field "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[2].ItemList[1].Value")
          :race (->Enumeration
                  "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[4].ItemList[1].Value"
                  utils/race-decode)
@@ -71,8 +78,7 @@
       (merge
         common-fields
         {:type (->ConstantVal "vnok.MD")
-         :has-records (->Enumeration "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value"
-                                     utils/yes-no-decode)
+         :has-records (yes-no-field "$.d.FormData.SectionList[0].ItemGroupList[0].RowList[0].ItemList[1].Value")
          :records
          (->Array
            "$.d.FormData.SectionList[2].ItemGroupList"
@@ -97,9 +103,7 @@
                                        "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[1].ItemList[1].Value")
          :is-done (->Bool "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[0].Value")
          :not-done-reason (->Text "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[2].ItemList[2].Value")
-         :has-deviations (->Enumeration
-                           "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value"
-                           utils/yes-no-decode)
+         :has-deviations (yes-no-field "$.d.FormData.SectionList[2].ItemGroupList[0].RowList[0].ItemList[1].Value")
          :deviations
          (->Array
            "$.d.FormData.SectionList[3].ItemGroupList"
@@ -107,9 +111,7 @@
              {:organ-system (->Enumeration
                               "$.RowList[0].ItemList[0].Value"
                               utils/organ-system-decode)
-              :is-important (->Enumeration
-                              "$.RowList[0].ItemList[1].Value"
-                              utils/yes-no-decode)
+              :is-important (yes-no-field "$.RowList[0].ItemList[1].Value")
               :comment (->Text "$.RowList[0].ItemList[2].Value")})
            true)}))}
 
@@ -125,6 +127,10 @@
                    "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[0].ItemList[0].Value"
                    {"1" "НЯ/СНЯ", "2" "Другое", "" ""})
          :comment (->Text "$.d.FormData.SectionList[1].ItemGroupList[0].RowList[3].ItemList[1].Value")}))}])
+
+;;
+;; Actions avaliable for this study
+;;
 
 (defn dispatch-parser [json] (get-in json [:d :FormData :SectionList 0 :ID]))
 (def-json-parser parse-exp-from-json dispatch-parser exps)
