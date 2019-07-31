@@ -110,7 +110,7 @@
            (str "Unable to build view for a given exp type " (:type exp))
            {:input exp})))
 
-(defmethod exp->view "vnok/DEMO" [exp]
+(defmethod exp->view "vnok.DEMO" [exp]
   (let [field-names [["Дата визита" :date]
                      ["ДАТА ПОДПИСАНИЯ ИНФОРМИРОВАННОГО СОГЛАСИЯ" :agr-datetime]
                      ["ДАТА РОЖДЕНИЯ" :birthday]
@@ -120,7 +120,7 @@
                      ["Другое, укажите" :other]]]
     [map->table exp field-names]))
 
-(defmethod exp->view "vnok/MD" [exp]
+(defmethod exp->view "vnok.MD" [exp]
   [:div
    [map->table exp [[(str
                        "БЫЛИ ЛИ У ПАЦИЕНТА ОПЕРАТИВНЫЕ ВМЕШАТЕЛЬСТВА И ЗНАЧИМЫЕ, С"
@@ -140,7 +140,7 @@
         ["СТАТУС" :status]
         ["ДАТА ЗАВЕРШЕНИЯ" :stop-date]]])])
 
-(defmethod exp->view "vnok/PE.v2-v10" [exp]
+(defmethod exp->view "vnok.PE.v2-v10" [exp]
   [:div
    [map->table exp [["ДАТА ВИЗИТА" :date]
                     ["ДАТА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ" :examination-date]
@@ -158,7 +158,7 @@
         ["Клиническая значимость (в случае отклонения от нормы)" :is-important]
         ["Комментарии (в случае отклонения от нормы)" :comment]]])])
 
-(defmethod exp->view "vnok/UV" [exp]
+(defmethod exp->view "vnok.UV" [exp]
   (let [field-names [["ДАТА ВИЗИТА" :date]
                      ["ПРИЧИНА НЕЗАПЛАНИРОВАННОГО ВИЗИТА" :reason]
                      ["Комментарии" :comment]]]

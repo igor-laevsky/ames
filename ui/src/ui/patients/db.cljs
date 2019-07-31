@@ -29,7 +29,6 @@
 (s/def :ui.patients.db.exp/verified boolean?)
 (s/def ::exp (s/keys :req-un [:ui.patients.db.exp/type
                               :ui.patients.db.exp/visit
-                              :ui.patients.db.exp/group
                               :ui.patients.db.exp/location
                               :ui.patients.db.exp/finished
                               :ui.patients.db.exp/verified]))

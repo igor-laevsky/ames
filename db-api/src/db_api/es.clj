@@ -78,7 +78,7 @@
                                         \"patients\" : {
                                             \"terms\" : {
                                               \"script\" : {
-                                                \"source\": \"doc['patient.name'].value + ' ' + doc['patient.rand-num'].value\",
+                                                \"source\": \"doc['patient.name'].value + ' ' + (doc['patient.rand-num'].size() > 0 ? doc['patient.rand-num'].value : ' ')\",
                                                 \"lang\": \"painless\"
                                               },
                                               \"size\": 10000
@@ -133,7 +133,7 @@
                                     \"visits\": {
                                       \"terms\": {
                                         \"script\" : {
-                                          \"source\": \"doc['visit'].value + ' ' + doc['group'].value\",
+                                          \"source\": \"doc['visit'].value + ' ' + (doc['group'].size() > 0 ? doc['group'].value : ' ')\",
                                           \"lang\": \"painless\"
                                         },
                                         \"size\": 10000
