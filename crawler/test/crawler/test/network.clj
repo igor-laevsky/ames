@@ -63,6 +63,6 @@
 ; TODO: Mock the request
 (deftest cookie-test
   (is (= (do
-           (a/<!! (network/get (:network test-system) "https://google.com"))
+           (a/<!! (network/get (:network test-system) "https://www.google.com"))
            (keys (cookies/get-cookies (get-in test-system [:network :cookie-store]))))
          ["1P_JAR" "NID"])))

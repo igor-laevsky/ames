@@ -18,7 +18,7 @@
 (defn create-test-system [should-login?]
   (-> (component/system-map
         :network (network/make-network {:num-threads 10
-                                        :rate        10})
+                                        :rate        2})
         :saver (saver/make-file-saver {:file-name saver-file})
         :etl (component/using
                (if should-login?
@@ -100,12 +100,6 @@
                 {:id "426", :context {:rand-num "R001"}}
                 {:id "1346", :context {:rand-num "R368"}}]
                (take 7 res)))
-        (is (= [{:id "15823", :context {:rand-num "R462"}}
-                {:id "15824", :context {:rand-num "R462"}}
-                {:id "15825", :context {:rand-num "R462"}}
-                {:id "18557", :context {:rand-num "R022"}}
-                {:id "18558", :context {:rand-num "R022"}}]
-               (take-last 5 res)))
         ; Service should close to-chan once from-chan is closed
         (is (= false (a/put! to-chan :nothing)))
         ; Check that service had stopped
