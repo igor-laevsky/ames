@@ -131,3 +131,21 @@
                   (str "Unable to find parser for a given exp.")
                   {:orig-id (get-in ~'j [:d :FormData :SectionList 0 :ID])})))
        ~@(for [e exps] (get-exp-parser parser-name e)))))
+
+;; Defines all specs required for a set of exps.
+(defmacro def-exp-specs [root-name f]
+  (assert (string? root-name) "root-name must be a string")
+  (let [exps (eval f)
+        m-name (symbol (str *ns*) (str "get-" root-name "-spec"))
+        get-spec-name (fn [e] (keyword root-name (name (:name e))))]
+    `(do
+       ; s/def all of the specs
+       ~@(for [e exps
+               :let [spec-name (get-spec-name e)]]
+           (->> e :fields (get-spec-form) (to-spec-defs spec-name)))
+
+       ; define multimethod and a root spec
+       (defmulti ~m-name :type)
+       ~@(for [e exps]
+           `(defmethod ~m-name ~(:name e) [~'_]
+              (s/get-spec ~(get-spec-name e)))))))

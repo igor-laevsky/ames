@@ -11,7 +11,6 @@
     (is (not (s/valid? (eval (l/get-spec-form f)) "asd")))
     (is (= {:type "keyword"} (l/get-es-mapping f)))))
 
-
 (deftest boolean-test
   (let [f (l/->Bool "$.val")]
     (is (nil? (l/from-json f {:not-val "true"})))

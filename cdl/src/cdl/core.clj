@@ -6,7 +6,7 @@
 ;;; This namespace defines public interface for the set of trials.
 
 ; Main spec to be used to check specific experiment.
-(s/def ::exp (s/multi-spec common/get-exp-spec :type))
+(s/def ::exp (s/multi-spec vnok/get-exp-spec :type))
 
 ; Return true if we can parse given exp
 (defn can-parse? [json]

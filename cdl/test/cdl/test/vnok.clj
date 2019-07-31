@@ -157,18 +157,107 @@
   (is (s/valid? ::c/exp
            {:patient {:name "01-005",
                       :birthday "1940-09-06",
-                      :gender "Женский",
-                      :rand-num ""},
+                      :gender "Женский"},
             :date "2018-09-05",
-            :group "",
             :age "77",
             :race "Европеоидная",
-            :other "",
             :birthday "1940-09-06",
-            :type "vnok/DEMO",
+            :type "vnok.DEMO",
             :finished true,
             :visit "vnok/se.SCR",
             :agr-datetime "2018-09-05 16:36",
             :gender "Женский",
             :location "01",
             :verified true})))
+
+(deftest spec-fail-test
+  (is ((complement s/valid?)
+        ::c/exp
+        {:patient {:name "01-005",
+                   :birthday "1940-09-06",
+                   :gender "Женский"},
+         :date 123,
+         :age "77",
+         :race "Европеоидная",
+         :birthday "1940-09-06",
+         :type "vnok.DEMO",
+         :finished true,
+         :visit "vnok/se.SCR",
+         :agr-datetime "2018-09-05 16:36",
+         :gender "Женский",
+         :location "01",
+         :verified true}))
+
+  (is ((complement s/valid?)
+        ::c/exp
+        {:patient {:name "01-005",
+                   :birthday "1940-09-06",
+                   :gender "Женский"},
+         :date "2019",
+         :age "77",
+         :race "Европеоидная",
+         :birthday "1940-09-06",
+         :type "vnok.DEMO",
+         :finished true,
+         :visit "vnok/se.SCR",
+         :agr-datetime "2018-09-05 16:36",
+         :gender nil,
+         :location "01",
+         :verified true}))
+
+  (is ((complement s/valid?)
+        {:patient {:name "01-002",
+                   :birthday "1939-10-06",
+                   :gender "Мужской"},
+         :has-records "Да",
+         :type "vnok.MD",
+         :finished true,
+         :records [{:status "Продолжается",
+                    :condition "Артериальная гипертензия II стадии, риск 3, контролируемая.",
+                    :start-date "2013"}
+                   {:status "Продолжается",
+                    :condition "Хроническая сердечная недостаточность I стадии, ФК 2",
+                    :start-date "2013"}
+                   {:status "Разрешилось",
+                    :condition "Экстрасиcтолия желудочковая, редкая одиночная",
+                    :stop-date "2018-05-28",
+                    :start-date "2016-08-31"}
+                   {:status "Продолжается",
+                    :condition "Дислипидемия",
+                    :start-date "2016-09-03"}
+                   {:status "Продолжается",
+                    :condition "Сахарный диабет 2 типа, ИЦУГ < 7,5%",
+                    :start-date "2015"}
+                   {:status "Продолжается",
+                    :condition "Атеросклероз магистральных артерий головы (клинически)",
+                    :start-date "2018-05-28"}
+                   {:status "Продолжается",
+                    :condition "Синдром позвоночно-подключичного обкрадывания слева (клинически)",
+                    :start-date "2018-05-28"}
+                   {:status "Разрешилось",
+                    :condition "Миграция водителя ритма по предсердиям",
+                    :stop-date "2018-05-28",
+                    :start-date "!!!!!!>>>>wrong<<<<<"}
+                   {:status "Разрешилось",
+                    :condition "Замедление атриовентрикулярного проведения",
+                    :stop-date "2018-05-28",
+                    :start-date "2018-05-28"}
+                   {:status "Разрешилось",
+                    :condition "Перелом правой верхней конечности",
+                    :stop-date "1980",
+                    :start-date "1980"}
+                   {:status "Разрешилось",
+                    :condition "Аппендэктомия",
+                    :stop-date "1966",
+                    :start-date "1966"}
+                   {:status "Разрешилось",
+                    :condition "герниопластика паховой грыжи слева",
+                    :stop-date "2009",
+                    :start-date "2009"}
+                   {:status "Продолжается",
+                    :condition "Боль в левой ноге, вынуждающая остановиться при ходьбе около 100 метров",
+                    :start-date "2017-10"}],
+         :visit "vnok/se.SCR",
+         :location "01",
+         :verified true}
+        (read-exp-from-file "vnok/MD.json"))))

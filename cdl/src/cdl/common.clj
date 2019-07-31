@@ -10,12 +10,6 @@
 ;;; This namespace contains private interface definitions and helper functions
 ;;; for the single trial.
 
-
-;; Common interface for each exp
-;;
-
-(defmulti get-exp-spec :type)
-
 (defn dispatch-parser [json] (get-in json [:d :FormData :SectionList 0 :ID]))
 
 ;; Helper routines for specs reused across different experiments
